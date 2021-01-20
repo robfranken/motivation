@@ -1,0 +1,241 @@
+---
+title: "Latent Profile Analysis using Mclust"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: false
+    toc_depth: 1
+    code_folding: show
+    code_download: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+```
+
+<br>
+
+## PART 2
+*Last edited: January 20, 2021*
+
+<br>
+
+Let's now estimate the LPA model with as input the CFA factor-scores. Again, the idea is that this would provide subscale estimates that consider the unique contribution of each item (instead of averaging over all items), resulting in "true" motivational configurations (see [this article](https://scholarworks.umass.edu/cgi/viewcontent.cgi?article=1226&context=pare)).
+
+We are going to use the [*Lavaan*](http://www.understandingdata.net/2017/03/22/cfa-in-lavaan/)-package for CFA. 
+
+
+---
+
+# 1. Data
+
+Let's call our 'cleaned' SMS-data again.
+
+```{r, warning=FALSE, message=FALSE}
+library(sjlabelled)
+library(dplyr)
+library(tidyverse)
+library(careless)
+library(psych)
+
+load("data_abs_public_v2.RData") # load data
+data_abs_public <- unlabel(data_abs_public, verbose=F)
+
+sms <- data_abs_public %>% select(W1_M1_1, W1_M1_2, W1_M1_3, W1_M1_4, W1_M1_5, W1_M1_6, W1_M1_7, W1_M1_8, W1_M2_1, W1_M2_2, W1_M2_3, W1_M2_4, W1_M2_5, W1_M2_6, W1_M2_7, W1_M2_8, W1_M3_1, W1_M3_2, W1_M3_3, W1_M3_4, W1_M3_5, W1_M3_6, W1_M3_7, W1_M3_8) # subset W1
+
+sms$id <- 1:length(sms[, 1]) # add identifier
+
+sms <- sms %>%
+  mutate(string = longstring(.)) %>%
+  mutate(md = outlier(., plot = FALSE)) # make string variable
+
+cutoff <- (qchisq(p = 1 - .001, df = ncol(sms)))
+sms_clean <- sms %>%
+  filter(string <= 10,
+         md < cutoff) %>%
+  select(-string, -md) # cap string responding and use MD
+```
+
+<br>
+
+----
+
+# 2. CFA
+
+Now we are going to perform confirmatory factor analysis using Lavaan. First, tell Lavaan the confirmatory structure.
+
+```{r}
+library(lavaan)
+
+motivation_model <- "
+amotivation =~ W1_M1_5 + W1_M2_4 + W1_M3_1 + W1_M3_6
+external    =~ W1_M1_4 + W1_M2_3 + W1_M3_3 + W1_M3_8
+introjected =~ W1_M1_7 + W1_M2_2 + W1_M2_8 + W1_M3_7
+identified  =~ W1_M1_3 + W1_M1_8 + W1_M2_7 + W1_M3_4
+integrated  =~ W1_M1_2 + W1_M2_1 + W1_M2_5 + W1_M3_5
+intrinsic   =~ W1_M1_1 + W1_M1_6 + W1_M2_6 + W1_M3_2
+id ~~ id"
+```
+
+When performing CFA (or any latent variable modeling) the question remains what scale to assign to the latent variable. Many statistical programs (including Lavaan) fix the loading of the first variable for a given latent variable to 1, which assigns the scale of that manifest indicator to the latent variable. We will use a standardized scale for the latent variable (i.e. mean = 0, sd = 1): the loading of the first variable is then freely estimated.
+
+The default treatment of missing data is listwise deletion; perhaps not what we want. Later on we can try full information maximum likelihood (FIML), which will generally result in estimates similar to what you would get with multiple impution, but with the added advantage that it's all done in one step.
+
+```{r echo=T, results='hide'}
+fit <- cfa(motivation_model, data=sms_clean, # use the 'clean' data
+            std.lv=T # this tells lavaan to use a standardized scale for the latent variables.
+)
+```
+
+Let's call the CFA output with the *knitr*-package.
+
+```{r}
+library(knitr)
+
+options(knitr.kable.NA = '') # this will hide missing values in the kable table
+
+parameterEstimates(fit, standardized=TRUE) %>% 
+  filter(op == "=~") %>% 
+  mutate(stars = ifelse(pvalue < .001, "***", ifelse(pvalue < .01, "**", ifelse(pvalue < .05, "*", "")))) %>%
+  select('Latent Factor'=lhs, 
+         Indicator=rhs, 
+         B=est, 
+         SE=se, Z=z, 
+         Beta=std.all, 
+         sig=stars) %>% 
+  kable(digits = 3, format="pandoc", caption="Table 1. Latent Factor Loadings"
+  )
+
+```
+
+
+So, as an example, for a 1-unit increase in the latent variable *amotivation* (i.e. 1-SD increase), the model predicts a 0.367 increase in W1_M1_5.
+
+<br>
+
+Let's also get the correlations between the factors.
+
+```{r}
+parameterEstimates(fit, standardized=TRUE) %>% 
+  filter(op == "~~", 
+         lhs %in% c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic"), 
+         !is.na(pvalue)) %>% 
+  mutate(stars = ifelse(pvalue < .001, "***", 
+                        ifelse(pvalue < .01, "**", 
+                               ifelse(pvalue < .05, "*", "")))) %>% 
+  select('Factor 1'=lhs, 
+         'Factor 2'=rhs, 
+         Correlation=est, 
+         sig=stars) %>% 
+  kable(digits = 3, format="pandoc", caption="Table 2: Latent Factor Correlations")
+```
+
+<br>
+
+Now extract the factor scores, put them into a dataframe, delete missings, and standardize the factor scores (again). Also, we make a descriptive table.
+
+```{r}
+fs <- lavPredict(fit, newdata = sms_clean, append.data = TRUE) # extract
+fs <- as.data.frame(fs[, c(1:6, 31)]) # subset factor scores and identifier in df
+clus <- fs %>%
+  select(-id) %>%
+  na.omit() %>% # listwise deletion
+  mutate_all(list(scale)) # standardize
+
+clus$id <- fs$id # add id again...
+
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+
+# describe
+
+input <- clus %>% 
+  select(-id) %>% 
+  gather("Variable", "value") %>% 
+  group_by(Variable) %>%
+  summarise(Mean=mean(value, na.rm=TRUE), 
+            SD=sd(value, na.rm=TRUE), 
+            min=min(value, na.rm=TRUE), 
+            max=max(value, na.rm=TRUE))
+
+knitr::kable(input, digits=2, "html", caption="Table 3. Descriptives of standardized factor scores SMS W1") %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) 
+```
+
+<br>
+
+And check the distribution of our variables
+
+```{r}
+library(Hmisc)
+hist.data.frame(clus %>%
+                  select(-id))
+```
+
+The produced standardized scores somewhat approximate a Z-score metric (i.e. where values range from ca. -3 to +3). Note that *amotivation* is an exception to the rule: it is very much right-skewed and has high kurtosis.
+
+
+<br>
+
+----
+
+# 3. LPA
+
+Let's follow the same procedure for LPA, but now we include the standardized factor scores as input.
+
+## Model fit {.tabset .tabset-fade} 
+
+Starting off by exploring model fit again, by plotting it.
+
+### BIC
+```{r class.source = 'fold-hide'}
+library(mclust)
+BIC <- mclustBIC(clus %>%
+                   select(-id)) # exclude id
+plot(BIC)
+```
+
+### ICL
+```{r class.source = 'fold-hide'}
+library(mclust)
+ICL <- mclustICL(clus %>%
+               select(-id))
+plot(ICL)
+```
+
+### BLRT
+```{r eval = FALSE}
+mclustBootstrapLRT(clus %>%
+               select(-id), modelName = "EEV")
+```
+
+## {-}
+
+And use the *summary*-function to show the top-three models based on BIC and ICL.
+
+## {.tabset .tabset-fade}
+
+### BIC
+```{r class.source = 'fold-hide'}
+summary(BIC)
+```
+
+### ICL
+```{r class.source = 'fold-hide'}
+summary(ICL)
+```
+
+## {-}
+
+<br>
+
+----
+
+# 4. Visualizing LPA {.tabset .tabset-fade} 
+
+Statistically, the best model is the VEV, 9. We do not plot this, but we estimate a sequence of models, incrementally increasing the number of profiles, until they do not provide theoretical additions to the model. Plotting the models will make it easier to, intuitively, assess which model is suitable. We start with 2 profiles. 
+
