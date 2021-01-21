@@ -464,7 +464,8 @@ However, I think LPA is difficult to reproduce on different samples. Moreover, i
 
 In the future, I will go through the following:
 
-1. We will re-specify the LPA with weighted CFA factor-scores as input.
+1. We will re-specify the LPA with CFA factor-scores and weighted sum scores as input (see [this article](https://scholarworks.umass.edu/cgi/viewcontent.cgi?article=1226&context=pare
+)).
 2. We will explore motivational profiles in the context of longitudinal data, by extending the LPA to the [LPTA](https://www.methodology.psu.edu/ra/lta/) (Latent Profile Transition Analysis), which allows for the exploration of (relative) stability and/or change in the exhibition of motivational profiles, while tackling issues of longitudinal measurement invariance and measurement error in profile assignment.
 3. And eventually, we will investigate associations between profile membership and theoretical covariates, to see if we can validate our profiles.
 

@@ -1,0 +1,317 @@
+---
+title: "Latent Profile Analysis using Mclust"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: false
+    toc_depth: 1
+    code_folding: show
+    code_download: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+```
+
+<br>
+
+## PART 3
+*Last edited: January 21, 2021*
+
+<br>
+
+As a final method, let's use weighted sum scores (as described on page 3 of [this article](https://scholarworks.umass.edu/cgi/viewcontent.cgi?article=1226&context=pare
+)). Sum scores for each motivational type will be created by multiplying the factor loading of each item to the scaled score for each item before summing. For this method we fix the loading of the first variable of each latent variable to 1.
+
+---
+
+# 1. Data
+
+Let's call our 'cleaned' SMS-data again.
+
+```{r, warning=FALSE, message=FALSE}
+library(sjlabelled)
+library(dplyr)
+library(tidyverse)
+library(careless)
+library(psych)
+
+load("data_abs_public_v2.RData") # load data
+data_abs_public <- unlabel(data_abs_public, verbose=F)
+
+sms <- data_abs_public %>% select(W1_M1_1, W1_M1_2, W1_M1_3, W1_M1_4, W1_M1_5, W1_M1_6, W1_M1_7, W1_M1_8, W1_M2_1, W1_M2_2, W1_M2_3, W1_M2_4, W1_M2_5, W1_M2_6, W1_M2_7, W1_M2_8, W1_M3_1, W1_M3_2, W1_M3_3, W1_M3_4, W1_M3_5, W1_M3_6, W1_M3_7, W1_M3_8) # subset W1
+
+sms$id <- 1:length(sms[, 1]) # add identifier
+
+sms <- sms %>%
+  mutate(string = longstring(.)) %>%
+  mutate(md = outlier(., plot = FALSE)) # make string variable
+
+cutoff <- (qchisq(p = 1 - .001, df = ncol(sms)))
+sms_clean <- sms %>%
+  filter(string <= 10,
+         md < cutoff) %>%
+  select(-string, -md) # cap string responding and use MD
+```
+
+<br>
+
+----
+
+# 2. CFA
+
+Again, tell Lavaan the confirmatory structure.
+
+```{r}
+library(lavaan)
+
+motivation_model <- "
+amotivation =~ W1_M1_5 + W1_M2_4 + W1_M3_1 + W1_M3_6
+external    =~ W1_M1_4 + W1_M2_3 + W1_M3_3 + W1_M3_8
+introjected =~ W1_M1_7 + W1_M2_2 + W1_M2_8 + W1_M3_7
+identified  =~ W1_M1_3 + W1_M1_8 + W1_M2_7 + W1_M3_4
+integrated  =~ W1_M1_2 + W1_M2_1 + W1_M2_5 + W1_M3_5
+intrinsic   =~ W1_M1_1 + W1_M1_6 + W1_M2_6 + W1_M3_2
+id ~~ id"
+```
+
+Now get the factor scores, and fix the loading of the first variable of each latent variable to 1.
+
+```{r}
+# Get latent factor scores, scaled to the manifest variable metric
+fit <- cfa(motivation_model, data=sms_clean,
+           std.lv=FALSE) # this may be left out as well
+
+
+```
+
+Now we can calculate the weighted sum scores by multiplying the raw item scores with the corresponding factor scores, and then summing over the resulting weighted scores (thereby taking into account the strength (or lack thereof) of each item). 
+
+```{r}
+# Get factor loadings
+loading <- parameterEstimates(fit)
+loading <- loading$est[1:24]
+
+# amotivation
+amotivation <- rowMeans(cbind((sms_clean$W1_M1_5*loading[1]), (sms_clean$W1_M2_4*loading[2]), (sms_clean$W1_M3_1*loading[3]),   (sms_clean$W1_M3_6*loading[4])))
+
+# external regulation
+external <- rowMeans(cbind((sms_clean$W1_M1_4*loading[5]), (sms_clean$W1_M2_3*loading[6]), (sms_clean$W1_M3_3*loading[7]),   (sms_clean$W1_M3_8*loading[8])))
+
+# introjected regulation
+introjected <- rowMeans(cbind((sms_clean$W1_M1_7*loading[9]), (sms_clean$W1_M2_2*loading[10]), (sms_clean$W1_M2_8*loading[11]),   (sms_clean$W1_M3_7*loading[12])))
+
+# identified regulation
+identified <- rowMeans(cbind((sms_clean$W1_M1_3*loading[13]), (sms_clean$W1_M1_8*loading[14]), (sms_clean$W1_M2_7*loading[15]),   (sms_clean$W1_M3_4*loading[16])))
+
+# integrated regulation
+integrated <- rowMeans(cbind((sms_clean$W1_M1_2*loading[17]), (sms_clean$W1_M2_1*loading[18]), (sms_clean$W1_M2_5*loading[19]),   (sms_clean$W1_M3_5*loading[20])))
+
+# intrinsic regulation
+intrinsic <- rowMeans(cbind((sms_clean$W1_M1_1*loading[21]), (sms_clean$W1_M1_6*loading[22]), (sms_clean$W1_M2_6*loading[23]),   (sms_clean$W1_M3_2*loading[24])))
+
+weighted <- cbind(amotivation, external, introjected, identified, integrated, intrinsic)
+weighted <- as.data.frame(weighted[complete.cases(weighted), ])
+```
+
+<br>
+
+----
+
+# 3. Descriptives
+Let's describe the weighted sum scores of the motivational regulations.
+
+```{r}
+# install packages
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+
+input <- weighted %>% 
+  gather("Variable", "value") %>% 
+  group_by(Variable) %>%
+  summarise(Mean=mean(value, na.rm=TRUE), 
+            SD=sd(value, na.rm=TRUE), 
+            min=min(value, na.rm=TRUE), 
+            max=max(value, na.rm=TRUE))
+
+knitr::kable(input, digits=2, "html", caption="Descriptives of SMS W1: weighted sum scores") %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) 
+```
+
+<br>
+
+----
+
+# 4. LPA
+
+Now the LPA.
+
+## Model fit {.tabset .tabset-fade}
+
+Starting with model fit: checking BIC and ICL (also check BLRT).
+
+### BIC
+```{r class.source = 'fold-hide'}
+library(mclust)
+BIC <- mclustBIC(weighted) 
+plot(BIC)
+```
+
+### ICL
+```{r class.source = 'fold-hide'}
+library(mclust)
+ICL <- mclustICL(weighted) 
+plot(ICL)
+```
+
+### BLRT
+```{r eval = FALSE}
+library(mclust)
+mclustBootstrapLRT(weighted, modelName = "VEV")
+```
+
+## {-}
+
+Use the *summary*-function to show the top-three models based on BIC and ICL.
+
+## {.tabset .tabset-fade}
+
+### BIC
+```{r class.source = 'fold-hide'}
+summary(BIC)
+```
+
+### ICL
+```{r class.source = 'fold-hide'}
+summary(ICL)
+```
+
+## {-}
+
+Now the VEE is the best-fitting model, which may be more theoretically useful, since it constrains the shape of the distribution to be equal.
+
+<br>
+
+----
+
+# 5. Visualizing LPA
+
+## {.tabset .tabset-fade}
+
+Let's estimate and plot a sequence of models again, incrementally increasing the number of profiles. Note that now we don't have z-scores but weighted sum scores based on the original metric.
+
+### 2 profiles
+
+```{r class.source = 'fold-hide'}
+m2 <- Mclust(weighted, modelNames = "VEE", G = 2, x = BIC)
+summary(m2)
+
+# Extract mean weighted sum scores
+library(reshape2)
+means <- data.frame(m2$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Mean weighted sum scores") +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+### 3 profiles
+
+```{r class.source = 'fold-hide'}
+m3 <- Mclust(weighted, modelNames = "VEE", G = 3, x = BIC)
+summary(m3)
+
+# Extract mean weighted sum scores
+library(reshape2)
+means <- data.frame(m3$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Mean weighted sum scores") +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+### 4 profiles
+
+```{r class.source = 'fold-hide'}
+m4 <- Mclust(weighted, modelNames = "VEE", G = 4, x = BIC)
+summary(m4)
+
+# Extract mean weighted sum scores
+library(reshape2)
+means <- data.frame(m4$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Mean weighted sum scores") +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+### 5 profiles
+
+```{r class.source = 'fold-hide'}
+m5 <- Mclust(weighted, modelNames = "VEE", G = 5, x = BIC)
+summary(m5)
+
+# Extract mean weighted sum scores
+library(reshape2)
+means <- data.frame(m5$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Mean weighted sum scores") +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+## {-}
+
+<br>
+
+----
+
+Is it motivational **quantity** after all? 

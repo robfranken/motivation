@@ -4,8 +4,10 @@ navbar:
   left:
     - text: "Home"
       href: index.html
-    - text: "LPA: part 1"
+    - text: "Exploring LPA"
       href: lpa1.html
-    - text: "LPA: part 2"
+    - text: "CFA input"
       href: lpa2.html
+    - text: "Weighted sum scores"
+      href: lpa3.html
 output_dir: "docs"

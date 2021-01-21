@@ -111,7 +111,7 @@ parameterEstimates(fit, standardized=TRUE) %>%
 ```
 
 
-So, as an example, for a 1-unit increase in the latent variable *amotivation* (i.e. 1-SD increase), the model predicts a 0.367 increase in W1_M1_5.
+So, as an example, for a 1-unit increase in the latent variable *amotivation* (i.e. 1-SD increase), the model predicts a 0.322 increase in W1_M1_5.
 
 <br>
 
@@ -172,8 +172,8 @@ And check the distribution of our variables
 
 ```{r}
 library(Hmisc)
-hist.data.frame(clus %>%
-                  select(-id))
+hist(clus %>%
+       select(-id))
 ```
 
 The produced standardized scores somewhat approximate a Z-score metric (i.e. where values range from ca. -3 to +3). Note that *amotivation* is an exception to the rule: it is very much right-skewed and has high kurtosis.
@@ -209,8 +209,9 @@ plot(ICL)
 
 ### BLRT
 ```{r eval = FALSE}
+library(mclust)
 mclustBootstrapLRT(clus %>%
-               select(-id), modelName = "EEV")
+               select(-id), modelName = "VEV")
 ```
 
 ## {-}
@@ -235,7 +236,114 @@ summary(ICL)
 
 ----
 
-# 4. Visualizing LPA {.tabset .tabset-fade} 
+# 4. Visualizing LPA
 
-Statistically, the best model is the VEV, 9. We do not plot this, but we estimate a sequence of models, incrementally increasing the number of profiles, until they do not provide theoretical additions to the model. Plotting the models will make it easier to, intuitively, assess which model is suitable. We start with 2 profiles. 
+## {.tabset .tabset-fade}
 
+Statistically, the best model is the VEV, 8. We do not plot this, but we estimate a sequence of models, incrementally increasing the number of profiles, until they do not provide theoretical additions to the model. Plotting the models will make it easier to, intuitively, assess which model is suitable. We start with 2 profiles. 
+
+### 2 profiles
+
+```{r class.source = 'fold-hide'}
+m2 <- Mclust(clus %>%
+               select(-id),
+             modelNames = "VEV", G = 2, x = BIC)
+summary(m2) 
+means <- data.frame(m2$parameters$mean,
+                    stringsAsFactors = F) %>% 
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>% 
+  mutate(Mean = round(Mean, 2))
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Standardized mean latent SMS factor scores") +
+  theme_bw(base_size = 14) +
+  geom_hline(yintercept = 0, linetype="dashed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+### 3 profiles
+
+```{r class.source = 'fold-hide'}
+m3 <- Mclust(clus %>%
+               select(-id),
+             modelNames = "VEV", G = 3, x = BIC)
+summary(m3) 
+means <- data.frame(m3$parameters$mean,
+                    stringsAsFactors = F) %>% 
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>% 
+  mutate(Mean = round(Mean, 2))
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Standardized mean latent SMS factor scores") +
+  theme_bw(base_size = 14) +
+  geom_hline(yintercept = 0, linetype="dashed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+### 4 profiles
+
+```{r class.source = 'fold-hide'}
+m4 <- Mclust(clus %>%
+               select(-id),
+             modelNames = "VEV", G = 4, x = BIC)
+summary(m4) 
+means <- data.frame(m4$parameters$mean,
+                    stringsAsFactors = F) %>% 
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>% 
+  mutate(Mean = round(Mean, 2))
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Standardized mean latent SMS factor scores") +
+  theme_bw(base_size = 14) +
+  geom_hline(yintercept = 0, linetype="dashed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+### 5 profiles
+
+```{r class.source = 'fold-hide'}
+m5 <- Mclust(clus %>%
+               select(-id),
+             modelNames = "VEV", G = 5, x = BIC)
+summary(m5) 
+means <- data.frame(m5$parameters$mean,
+                    stringsAsFactors = F) %>% 
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>% 
+  mutate(Mean = round(Mean, 2))
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Standardized mean latent SMS factor scores") +
+  theme_bw(base_size = 14) +
+  geom_hline(yintercept = 0, linetype="dashed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+## {-}
+
+<br>
+
+----
+
+The output shows less theoretically interpretable motivational profiles compared to the previous LPA...
+As a last approach (see next page), we will use weighted sum scores (as described on page 3 of [this article](https://scholarworks.umass.edu/cgi/viewcontent.cgi?article=1226&context=pare
+)).
