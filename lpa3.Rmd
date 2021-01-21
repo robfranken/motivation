@@ -18,7 +18,7 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 <br>
 
 ## PART 3
-*Last edited: January 21, 2021*
+*Last edited: January 20, 2021*
 
 <br>
 
@@ -315,3 +315,13 @@ means %>%
 ----
 
 Is it motivational **quantity** after all? 
+
+<br>
+
+----
+
+# 6. Conclusion
+
+hmmmmmm...........
+
+
