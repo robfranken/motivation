@@ -32,12 +32,6 @@ In the following, we will explore motivational profiles in the context of longit
 First, we obtain weighted factor-scores for each SMS-subscale with CFA using MLE, as input for our subsequent LPA. Then, we use a three-step approach (see [this article](https://www.tandfonline.com/doi/pdf/10.1080/10705511.2014.915181); or the paper by [Emm-Collison and colleagues](https://www.sciencedirect.com/science/article/pii/S1469029219303851) who used the same procedure).
 
 
-
-Then, we use a three-step approach:
-
-
-3. Estimate the movement between motivational profiles accros time points, keeping the latent profiles at each time point fixed and accounting for measurement error in profile assignment. 
-
 ---
 
 # Step 1
@@ -524,12 +518,8 @@ p <- means %>%
   labs(x = NULL, y = "Standardized mean weighted factor scores") +
  scale_colour_manual(values=c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442")) + theme_bw(base_family="serif", base_size = 16) + geom_hline(yintercept = 0, linetype="dashed") + theme(axis.text.x = element_text(family="serif", angle = 45, hjust = 1), legend.position = "right", legend.title=element_blank())
 
-#png((paste("images", "/", "lpa.png", sep = ""))) # save the plot as .png
-```
+#png((paste("images", "/", "lpa.png", sep = ""))) # save the plot as .png, in case we need it...
 
-And let's turn this static plot into an *interactive* one. Here, it is not really necessary, but in a LPA with more indiciators it may be tough to read the values of each indicator. We will use the *plotly*-package.
-
-```{r, warning=FALSE, message=FALSE}
 library(plotly)
 
 ggplotly(p, tooltip = c("Motivation", "Mean")) %>%
@@ -545,10 +535,10 @@ ggplotly(p, tooltip = c("Motivation", "Mean")) %>%
 
 In the second step we conducted LPA separately for each set of latent profile indicators (i.e., for each time point), fixing the measurement parameters so that the profiles are the same as in step 1, allowing us to obtain profile variables and classification errors for each time point. 
 
+----
 
+# Step 3
 
-
-
-
+In the third step, we estimated the movement between motivational profiles across 3 time points, keeping the latent profiles at each time point fixed and accounting for measurement error in profile assignment. 
 
 
