@@ -10,6 +10,6 @@ navbar:
       href: lpa2.html
     - text: "Weighted sum scores"
       href: lpa3.html
-    - text: "test"
+    - text: "LPTA"
       href: lpta.html
 output_dir: "docs"
