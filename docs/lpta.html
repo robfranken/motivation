@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Latent Profile Transition Analysis</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<script src="site_libs/htmlwidgets-1.5.2/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.9.2.1/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-1.52.2/plotly-latest.min.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Motivation</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="lpa1.html">Exploring LPA</a>
+</li>
+<li>
+  <a href="lpa2.html">CFA input</a>
+</li>
+<li>
+  <a href="lpa3.html">Weighted sum scores</a>
+</li>
+<li>
+  <a href="lpta.html">test</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+<li role="separator" class="divider"></li>
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Latent Profile Transition Analysis</h1>
+
+</div>
+
+
+<p><br></p>
+<div id="exploring" class="section level2">
+<h2>Exploring</h2>
+<p><em>Last edited: January 25, 2021</em></p>
+<p><br></p>
+<p>In the following, we will explore motivational profiles in the context of longitudinal data, using SDT as a theoretical framework. We will explore movement between motivational profiles over time.</p>
+<p><br></p>
+</div>
+<div id="approach" class="section level2">
+<h2>Approach</h2>
+<p>First, we obtain weighted factor-scores for each SMS-subscale with CFA using MLE, as input for our subsequent LPA. Then, we use a three-step approach (see <a href="https://www.tandfonline.com/doi/pdf/10.1080/10705511.2014.915181">this article</a>; or the paper by <a href="https://www.sciencedirect.com/science/article/pii/S1469029219303851">Emm-Collison and colleagues</a> who used the same procedure).</p>
+<p>Then, we use a three-step approach:</p>
+<ol start="3" style="list-style-type: decimal">
+<li>Estimate the movement between motivational profiles accros time points, keeping the latent profiles at each time point fixed and accounting for measurement error in profile assignment.</li>
+</ol>
+<hr />
+</div>
+<div id="step-1" class="section level1">
+<h1>Step 1</h1>
+<p>Through step 1 we identified the motivational profiles for each timepoint, using data from all 3 time points (and thus assuming the observations of each time point to be independent from others).</p>
+<div id="data" class="section level2">
+<h2>1. Data</h2>
+<p>Let’s get our ‘cleaned’ SMS-data, for each wave, and then bind them together (and thus assume them to be independent observations)</p>
+<pre class="r"><code>library(sjlabelled)
+library(dplyr)
+library(tidyverse)
+library(careless)
+library(psych)
+
+load(&quot;data_abs_public_v2.RData&quot;) # load data
+data_abs_public &lt;- unlabel(data_abs_public, verbose=F)
+
+# subset sms data in each wave
+
+sms_w1 &lt;- data_abs_public %&gt;% select(W1_M1_1, W1_M1_2, W1_M1_3, W1_M1_4, W1_M1_5, W1_M1_6, W1_M1_7, W1_M1_8, W1_M2_1, W1_M2_2, W1_M2_3, W1_M2_4, W1_M2_5, W1_M2_6, W1_M2_7, W1_M2_8, W1_M3_1, W1_M3_2, W1_M3_3, W1_M3_4, W1_M3_5, W1_M3_6, W1_M3_7, W1_M3_8)
+sms_w2 &lt;- data_abs_public %&gt;% select(W2_M1_1, W2_M1_2, W2_M1_3, W2_M1_4, W2_M1_5, W2_M1_6, W2_M1_7, W2_M1_8, W2_M2_1, W2_M2_2, W2_M2_3, W2_M2_4, W2_M2_5, W2_M2_6, W2_M2_7, W2_M2_8, W2_M3_1, W2_M3_2, W2_M3_3, W2_M3_4, W2_M3_5, W2_M3_6, W2_M3_7, W2_M3_8) 
+sms_w3 &lt;- data_abs_public %&gt;% select(W3_M1_1, W3_M1_2, W3_M1_3, W3_M1_4, W3_M1_5, W3_M1_6, W3_M1_7, W3_M1_8, W3_M2_1, W3_M2_2, W3_M2_3, W3_M2_4, W3_M2_5, W3_M2_6, W3_M2_7, W3_M2_8, W3_M3_1, W3_M3_2, W3_M3_3, W3_M3_4, W3_M3_5, W3_M3_6, W3_M3_7, W3_M3_8)
+
+# make a &#39;string&#39; variable 
+sms_w1 &lt;- sms_w1 %&gt;%
+  mutate(string_w1 = longstring(.)) %&gt;%
+  mutate(md_w1 = outlier(., plot = FALSE))
+sms_w2 &lt;- sms_w2 %&gt;%
+  mutate(string_w2 = longstring(.)) %&gt;%
+  mutate(md_w2 = outlier(., plot = FALSE)) 
+sms_w3 &lt;- sms_w3 %&gt;%
+  mutate(string_w3 = longstring(.)) %&gt;%
+  mutate(md_w3 = outlier(., plot = FALSE)) 
+
+# cap string responding and use MD
+cutoff_w1 &lt;- (qchisq(p = 1 - .001, df = ncol(sms_w1)))
+sms_w1 &lt;- sms_w1 %&gt;%
+  filter(string_w1 &lt;= 10,
+         md_w1 &lt; cutoff_w1) %&gt;%
+  select(-string_w1, -md_w1)
+
+cutoff_w2 &lt;- (qchisq(p = 1 - .001, df = ncol(sms_w2)))
+sms_w2 &lt;- sms_w2 %&gt;%
+  filter(string_w2 &lt;= 10,
+         md_w2 &lt; cutoff_w2) %&gt;%
+  select(-string_w2, -md_w2)
+
+cutoff_w3 &lt;- (qchisq(p = 1 - .001, df = ncol(sms_w3)))
+sms_w3 &lt;- sms_w3 %&gt;%
+  filter(string_w3 &lt;= 10,
+         md_w3 &lt; cutoff_w3) %&gt;%
+  select(-string_w3, -md_w3)
+
+# bind together (hence assuming independent observations)
+names(sms_w1) &lt;- names(sms_w2) &lt;- names(sms_w3) &lt;- c(&quot;M1_1&quot;, &quot;M1_2&quot;, &quot;M1_3&quot;, &quot;M1_4&quot;, &quot;M1_5&quot;, &quot;M1_6&quot;, &quot;M1_7&quot;, &quot;M1_8&quot;, &quot;M2_1&quot;, &quot;M2_2&quot;, &quot;M2_3&quot;, &quot;M2_4&quot;, &quot;M2_5&quot;, &quot;M2_6&quot;, &quot;M2_7&quot;, &quot;M2_8&quot;, &quot;M3_1&quot;, &quot;M3_2&quot;, &quot;M3_3&quot;, &quot;M3_4&quot;, &quot;M3_5&quot;, &quot;M3_6&quot;, &quot;M3_7&quot;, &quot;M3_8&quot;)
+sms &lt;- rbind(sms_w1, sms_w2, sms_w3)
+sms$id &lt;- 1:nrow(sms) # add identifier</code></pre>
+<p><br></p>
+<hr />
+</div>
+<div id="cfa" class="section level2">
+<h2>2. CFA</h2>
+<p>Tell Lavaan the confirmatory structure.</p>
+<pre class="r"><code>library(lavaan)
+
+motivation_model &lt;- &quot;
+amotivation =~ M1_5 + M2_4 + M3_1 + M3_6
+external    =~ M1_4 + M2_3 + M3_3 + M3_8
+introjected =~ M1_7 + M2_2 + M2_8 + M3_7
+identified  =~ M1_3 + M1_8 + M2_7 + M3_4
+integrated  =~ M1_2 + M2_1 + M2_5 + M3_5
+intrinsic   =~ M1_1 + M1_6 + M2_6 + M3_2
+id ~~ id&quot;</code></pre>
+<p>Now let’s have a look at different fit indices.</p>
+<pre class="r"><code>fit &lt;- cfa(motivation_model, data=sms,
+           std.lv=FALSE) # this may be left out as well
+print(fitMeasures(fit, c(&quot;chisq&quot;, &quot;df&quot;, &quot;pvalue&quot;, &quot;cfi&quot;, &quot;rmsea&quot;, &quot;srmr&quot;), output = &quot;text&quot;), add.h0 = TRUE)</code></pre>
+<pre><code>## 
+## Model Test User Model:
+## 
+##   Test statistic                              2541.959
+##   Degrees of freedom                               261
+##   P-value                                        0.000
+## 
+## User Model versus Baseline Model:
+## 
+##   Comparative Fit Index (CFI)                    0.863
+## 
+## Root Mean Square Error of Approximation:
+## 
+##   RMSEA                                          0.072
+## 
+## Standardized Root Mean Square Residual:
+## 
+##   SRMR                                           0.058</code></pre>
+<p>And get the factor scores (we fixed the loading of the first variable of each latent variable to 1). We calculate weighted factor scores for each motivational subscale by multiplying the factor loading of each item to the scaled score for each item before summing.</p>
+<pre class="r"><code>loading &lt;- parameterEstimates(fit) # get loadings
+loading &lt;- loading$est[1:24] # subset
+
+# weighted sum (factor) scores
+amotivation &lt;- rowMeans(cbind((sms$M1_5*loading[1]), (sms$M2_4*loading[2]), (sms$M3_1*loading[3]), (sms$M3_6*loading[4])))
+external &lt;- rowMeans(cbind((sms$M1_4*loading[5]), (sms$M2_3*loading[6]), (sms$M3_3*loading[7]),   (sms$M3_8*loading[8])))
+introjected &lt;- rowMeans(cbind((sms$M1_7*loading[9]), (sms$M2_2*loading[10]), (sms$M2_8*loading[11]), (sms$M3_7*loading[12])))
+identified &lt;- rowMeans(cbind((sms$M1_3*loading[13]), (sms$M1_8*loading[14]), (sms$M2_7*loading[15]), (sms$M3_4*loading[16])))
+integrated &lt;- rowMeans(cbind((sms$M1_2*loading[17]), (sms$M2_1*loading[18]), (sms$M2_5*loading[19]), (sms$M3_5*loading[20])))
+intrinsic &lt;- rowMeans(cbind((sms$M1_1*loading[21]), (sms$M1_6*loading[22]), (sms$M2_6*loading[23]), (sms$M3_2*loading[24])))
+
+# make df with complete observations (listwise deletion)
+weighted &lt;- cbind(amotivation, external, introjected, identified, integrated, intrinsic)
+weighted &lt;- as.data.frame(weighted[complete.cases(weighted), ])</code></pre>
+<p><br></p>
+<hr />
+</div>
+<div id="descriptives" class="section level2">
+<h2>3. Descriptives</h2>
+<p>Let’s get some descriptive statistics.</p>
+<pre class="r"><code>library(dplyr)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+
+input &lt;- weighted %&gt;% 
+  gather(&quot;Variable&quot;, &quot;value&quot;) %&gt;% 
+  group_by(Variable) %&gt;%
+  summarise(Mean=mean(value, na.rm=TRUE), 
+            SD=sd(value, na.rm=TRUE), 
+            min=min(value, na.rm=TRUE), 
+            max=max(value, na.rm=TRUE))
+
+knitr::kable(input, digits=2, &quot;html&quot;, caption=&quot;Descriptives of SMS (aggregated): weighted sum scores&quot;) %&gt;% 
+  kableExtra::kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;)) </code></pre>
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<caption>
+Descriptives of SMS (aggregated): weighted sum scores
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Variable
+</th>
+<th style="text-align:right;">
+Mean
+</th>
+<th style="text-align:right;">
+SD
+</th>
+<th style="text-align:right;">
+min
+</th>
+<th style="text-align:right;">
+max
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+amotivation
+</td>
+<td style="text-align:right;">
+1.57
+</td>
+<td style="text-align:right;">
+0.71
+</td>
+<td style="text-align:right;">
+1.19
+</td>
+<td style="text-align:right;">
+5.91
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+external
+</td>
+<td style="text-align:right;">
+2.22
+</td>
+<td style="text-align:right;">
+1.13
+</td>
+<td style="text-align:right;">
+0.98
+</td>
+<td style="text-align:right;">
+6.13
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+identified
+</td>
+<td style="text-align:right;">
+3.23
+</td>
+<td style="text-align:right;">
+1.15
+</td>
+<td style="text-align:right;">
+0.94
+</td>
+<td style="text-align:right;">
+6.56
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+integrated
+</td>
+<td style="text-align:right;">
+5.47
+</td>
+<td style="text-align:right;">
+1.71
+</td>
+<td style="text-align:right;">
+1.25
+</td>
+<td style="text-align:right;">
+8.73
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+intrinsic
+</td>
+<td style="text-align:right;">
+4.84
+</td>
+<td style="text-align:right;">
+1.75
+</td>
+<td style="text-align:right;">
+1.26
+</td>
+<td style="text-align:right;">
+8.83
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+introjected
+</td>
+<td style="text-align:right;">
+6.44
+</td>
+<td style="text-align:right;">
+1.65
+</td>
+<td style="text-align:right;">
+1.54
+</td>
+<td style="text-align:right;">
+9.01
+</td>
+</tr>
+</tbody>
+</table>
+<p>At face value, respondents seem to be pretty high in all types of motivation (compare with the sample of <a href="https://www.sciencedirect.com/science/article/pii/S1469029219303851">Emm-Collison and colleagues</a>).</p>
+<p><br></p>
+<hr />
+</div>
+<div id="lpa" class="section level2">
+<h2>4. LPA</h2>
+<p>Now we use the aggregated SMS data to identify motivational profiles, in a sequence of models with an increasing number of profiles (from 2 to …), to ascertain whether more complex (i.e. more profiles) or parsimonious (i.e. fewer profiles) models provided the best description (fit) of the data. We use the BIC and ICL (which penalizes on entropy) to see which model provides the best statistical fit to the data. But first, we transform the SMS-data into standardized z-scores, meaning that profile means reflect standard deviation (SD) units above or below the sample mean (which is set to 0).</p>
+<pre class="r"><code>clus &lt;- weighted %&gt;%
+  na.omit() %&gt;% # listwise deletion
+  mutate_all(list(scale)) # standardize indicators</code></pre>
+<div id="section" class="section level3 tabset tabset-fade">
+<h3></h3>
+<div id="bic" class="section level4">
+<h4>BIC</h4>
+<pre class="r fold-hide"><code>library(mclust)
+BIC &lt;- mclustBIC(clus) 
+plot(BIC)</code></pre>
+<p><img src="lpta_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+<div id="icl" class="section level4">
+<h4>ICL</h4>
+<pre class="r fold-hide"><code>library(mclust)
+ICL &lt;- mclustICL(clus) 
+plot(ICL)</code></pre>
+<p><img src="lpta_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+</div>
+<div id="section-1" class="section level3 unnumbered">
+<h3></h3>
+<p>Use the <em>summary</em>-function to show the top-three models based on BIC and ICL. (Oh and btw, <a href="https://stats.stackexchange.com/questions/237220/mclust-model-selection">here is a link</a> that explains why Mclust defaults to the model with the highest BIC value as the “best” model).</p>
+</div>
+<div id="section-2" class="section level3 tabset tabset-fade">
+<h3></h3>
+<div id="bic-1" class="section level4">
+<h4>BIC</h4>
+<pre class="r fold-hide"><code>summary(BIC)</code></pre>
+<pre><code>## Best BIC values:
+##              VEV,9       VEV,6      VEV,5
+## BIC      -21370.12 -21993.3819 -22011.483
+## BIC diff      0.00   -623.2571   -641.358</code></pre>
+</div>
+<div id="icl-1" class="section level4">
+<h4>ICL</h4>
+<pre class="r fold-hide"><code>summary(ICL)</code></pre>
+<pre><code>## Best ICL values:
+##              VEV,9       VEV,5      VEV,6
+## ICL      -21924.32 -22381.6310 -22393.724
+## ICL diff      0.00   -457.3104   -469.403</code></pre>
+</div>
+</div>
+<div id="section-3" class="section level3 unnumbered">
+<h3></h3>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="visualize" class="section level2">
+<h2>5. Visualize</h2>
+<div id="section-4" class="section level3 tabset tabset-fade">
+<h3></h3>
+<p>VEV, 9 provided the best-fitting model (followed by 6 and 5). Let’s estimate a sequence of models, with an increasing number of profiles, and plot them to assess their theoretical alignment.</p>
+<div id="profiles" class="section level4">
+<h4>2 profiles</h4>
+<pre class="r fold-hide"><code>m2 &lt;- Mclust(clus, modelNames = &quot;VEV&quot;, G = 2, x = BIC)
+summary(m2)</code></pre>
+<pre><code>## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust VEV (ellipsoidal, equal shape) model with 2 components: 
+## 
+##  log-likelihood    n df       BIC       ICL
+##       -11460.28 1691 50 -23292.21 -23517.14
+## 
+## Clustering table:
+##    1    2 
+##  543 1148</code></pre>
+<pre class="r fold-hide"><code># Extract mean weighted factor scores
+library(reshape2)
+means &lt;- data.frame(m2$parameters$mean,
+                    stringsAsFactors = F) %&gt;%
+  rownames_to_column() %&gt;%
+  rename(Motivation = rowname) %&gt;%
+  melt(id.vars = &quot;Motivation&quot;, variable.name = &quot;Profile&quot;, value.name = &quot;Mean&quot;) %&gt;%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %&gt;%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c(&quot;amotivation&quot;, &quot;external&quot;, &quot;introjected&quot;, &quot;identified&quot;, &quot;integrated&quot;, &quot;intrinsic&quot;)) +
+  labs(x = NULL, y = &quot;Standardized mean weighted factor scores&quot;) +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = &quot;top&quot;)</code></pre>
+<p><img src="lpta_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+<div id="profiles-1" class="section level4">
+<h4>3 profiles</h4>
+<pre class="r fold-hide"><code>m3 &lt;- Mclust(clus, modelNames = &quot;VEV&quot;, G = 3, x = BIC)
+summary(m3)</code></pre>
+<pre><code>## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust VEV (ellipsoidal, equal shape) model with 3 components: 
+## 
+##  log-likelihood    n df      BIC       ICL
+##       -11139.75 1691 73 -22822.1 -23271.44
+## 
+## Clustering table:
+##   1   2   3 
+## 428 799 464</code></pre>
+<pre class="r fold-hide"><code># Extract mean weighted sum scores
+library(reshape2)
+means &lt;- data.frame(m3$parameters$mean,
+                    stringsAsFactors = F) %&gt;%
+  rownames_to_column() %&gt;%
+  rename(Motivation = rowname) %&gt;%
+  melt(id.vars = &quot;Motivation&quot;, variable.name = &quot;Profile&quot;, value.name = &quot;Mean&quot;) %&gt;%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %&gt;%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c(&quot;amotivation&quot;, &quot;external&quot;, &quot;introjected&quot;, &quot;identified&quot;, &quot;integrated&quot;, &quot;intrinsic&quot;)) +
+  labs(x = NULL, y = &quot;Standardized mean weighted factor scores&quot;) +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = &quot;top&quot;)</code></pre>
+<p><img src="lpta_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+</div>
+<div id="profiles-2" class="section level4">
+<h4>4 profiles</h4>
+<pre class="r fold-hide"><code>m4 &lt;- Mclust(clus, modelNames = &quot;VEV&quot;, G = 4, x = BIC)
+summary(m4)</code></pre>
+<pre><code>## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust VEV (ellipsoidal, equal shape) model with 4 components: 
+## 
+##  log-likelihood    n df       BIC       ICL
+##       -11139.43 1691 96 -22992.44 -23440.25
+## 
+## Clustering table:
+##   1   2   3   4 
+## 915 196 276 304</code></pre>
+<pre class="r fold-hide"><code># Extract mean weighted sum scores
+library(reshape2)
+means &lt;- data.frame(m4$parameters$mean,
+                    stringsAsFactors = F) %&gt;%
+  rownames_to_column() %&gt;%
+  rename(Motivation = rowname) %&gt;%
+  melt(id.vars = &quot;Motivation&quot;, variable.name = &quot;Profile&quot;, value.name = &quot;Mean&quot;) %&gt;%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %&gt;%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c(&quot;amotivation&quot;, &quot;external&quot;, &quot;introjected&quot;, &quot;identified&quot;, &quot;integrated&quot;, &quot;intrinsic&quot;)) +
+  labs(x = NULL, y = &quot;Standardized mean weighted factor scores&quot;) +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = &quot;top&quot;)</code></pre>
+<p><img src="lpta_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+</div>
+<div id="profiles-3" class="section level4">
+<h4>5 profiles</h4>
+<pre class="r fold-hide"><code>m5 &lt;- Mclust(clus, modelNames = &quot;VEV&quot;, G = 5, x = BIC)
+summary(m5)</code></pre>
+<pre><code>## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust VEV (ellipsoidal, equal shape) model with 5 components: 
+## 
+##  log-likelihood    n  df       BIC       ICL
+##       -10563.47 1691 119 -22011.48 -22381.63
+## 
+## Clustering table:
+##   1   2   3   4   5 
+## 229 649 207 192 414</code></pre>
+<pre class="r fold-hide"><code># Extract mean weighted sum scores
+library(reshape2)
+means &lt;- data.frame(m5$parameters$mean,
+                    stringsAsFactors = F) %&gt;%
+  rownames_to_column() %&gt;%
+  rename(Motivation = rowname) %&gt;%
+  melt(id.vars = &quot;Motivation&quot;, variable.name = &quot;Profile&quot;, value.name = &quot;Mean&quot;) %&gt;%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %&gt;%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c(&quot;amotivation&quot;, &quot;external&quot;, &quot;introjected&quot;, &quot;identified&quot;, &quot;integrated&quot;, &quot;intrinsic&quot;)) +
+  labs(x = NULL, y = &quot;Standardized mean weighted factor scores&quot;) +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = &quot;top&quot;)</code></pre>
+<p><img src="lpta_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+</div>
+<div id="profiles-4" class="section level4">
+<h4>6 profiles</h4>
+<pre class="r fold-hide"><code>m6 &lt;- Mclust(clus, modelNames = &quot;VEV&quot;, G = 6, x = BIC)
+summary(m6)</code></pre>
+<pre><code>## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust VEV (ellipsoidal, equal shape) model with 6 components: 
+## 
+##  log-likelihood    n  df       BIC       ICL
+##       -10468.94 1691 142 -21993.38 -22393.72
+## 
+## Clustering table:
+##   1   2   3   4   5   6 
+## 173 234 351 229 225 479</code></pre>
+<pre class="r fold-hide"><code># Extract mean weighted sum scores
+library(reshape2)
+means &lt;- data.frame(m6$parameters$mean,
+                    stringsAsFactors = F) %&gt;%
+  rownames_to_column() %&gt;%
+  rename(Motivation = rowname) %&gt;%
+  melt(id.vars = &quot;Motivation&quot;, variable.name = &quot;Profile&quot;, value.name = &quot;Mean&quot;) %&gt;%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %&gt;%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c(&quot;amotivation&quot;, &quot;external&quot;, &quot;introjected&quot;, &quot;identified&quot;, &quot;integrated&quot;, &quot;intrinsic&quot;)) +
+  labs(x = NULL, y = &quot;Standardized mean weighted factor scores&quot;) +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = &quot;top&quot;)</code></pre>
+<p><img src="lpta_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+</div>
+</div>
+<div id="section-5" class="section level3 unnumbered">
+<h3></h3>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="probabilities" class="section level2">
+<h2>6. Probabilities</h2>
+<div id="section-6" class="section level3 tabset tabset-fade">
+<h3></h3>
+<p>Now let’s check the class membership probabilities (posterior probabilities) of our models.</p>
+<p>Note to self: also check <em>entropy</em>.</p>
+<div id="profiles-5" class="section level4">
+<h4>2 profiles</h4>
+<pre class="r"><code>prob &lt;- as.data.frame(m2$z) # turn probabilities into dataframe
+prob$class &lt;- m2$classification # get assigned profiles
+
+c1 &lt;- prob %&gt;% # calculate average posterior probabilities
+  filter(class == 1)
+c2 &lt;- prob %&gt;%
+  filter(class == 2)
+
+pp &lt;- as.data.frame(rbind(colMeans(c1), colMeans(c2)))
+print(pp)</code></pre>
+<pre><code>##           V1         V2 class
+## 1 0.94446534 0.05553466     1
+## 2 0.05771503 0.94228497     2</code></pre>
+</div>
+<div id="profiles-6" class="section level4">
+<h4>3 profiles</h4>
+<pre class="r"><code>prob &lt;- as.data.frame(m3$z) # turn probabilities into dataframe
+prob$class &lt;- m3$classification # get assigned profiles
+
+c1 &lt;- prob %&gt;% # calculate average posterior probabilities
+  filter(class == 1)
+c2 &lt;- prob %&gt;%
+  filter(class == 2)
+c3 &lt;- prob %&gt;%
+  filter(class == 3)
+
+pp &lt;- as.data.frame(rbind(colMeans(c1), colMeans(c2), colMeans(c3)))
+print(pp)</code></pre>
+<pre><code>##           V1         V2         V3 class
+## 1 0.96052034 0.02440954 0.01507012     1
+## 2 0.03539221 0.88247289 0.08213490     2
+## 3 0.06237198 0.10126204 0.83636598     3</code></pre>
+</div>
+<div id="profiles-7" class="section level4">
+<h4>4 profiles</h4>
+<pre class="r"><code>prob &lt;- as.data.frame(m4$z) # turn probabilities into dataframe
+prob$class &lt;- m4$classification # get assigned profiles
+
+c1 &lt;- prob %&gt;% # calculate average posterior probabilities
+  filter(class == 1)
+c2 &lt;- prob %&gt;%
+  filter(class == 2)
+c3 &lt;- prob %&gt;%
+  filter(class == 3)
+c4 &lt;- prob %&gt;%
+  filter(class == 4)
+
+pp &lt;- as.data.frame(rbind(colMeans(c1), colMeans(c2), colMeans(c3), colMeans(c4)))
+print(pp)</code></pre>
+<pre><code>##           V1           V2         V3          V4 class
+## 1 0.90395729 2.949224e-02 0.02393010 0.042620372     1
+## 2 0.13351293 8.506005e-01 0.01574430 0.000142279     2
+## 3 0.01738086 3.619163e-03 0.92368246 0.055317517     3
+## 4 0.08132547 1.646916e-07 0.07803924 0.840635123     4</code></pre>
+</div>
+<div id="profiles-8" class="section level4">
+<h4>5 profiles</h4>
+<pre class="r"><code>prob &lt;- as.data.frame(m5$z) # turn probabilities into dataframe
+prob$class &lt;- m5$classification # get assigned profiles
+
+c1 &lt;- prob %&gt;% # calculate average posterior probabilities
+  filter(class == 1)
+c2 &lt;- prob %&gt;%
+  filter(class == 2)
+c3 &lt;- prob %&gt;%
+  filter(class == 3)
+c4 &lt;- prob %&gt;%
+  filter(class == 4)
+c5 &lt;- prob %&gt;%
+  filter(class == 5)
+
+pp &lt;- as.data.frame(rbind(colMeans(c1), colMeans(c2), colMeans(c3), colMeans(c4), colMeans(c5)))
+print(pp)</code></pre>
+<pre><code>##             V1           V2          V3          V4           V5 class
+## 1 0.8755549668 1.294532e-03 0.051276312 0.071791790 8.239883e-05     1
+## 2 0.0002500483 9.054028e-01 0.005235859 0.004255844 8.485545e-02     2
+## 3 0.0161256405 8.061951e-04 0.952049335 0.029551970 1.466860e-03     3
+## 4 0.0253577898 3.455736e-08 0.029525977 0.939219074 5.897125e-03     4
+## 5 0.0001228048 9.276796e-02 0.004988436 0.009255939 8.928649e-01     5</code></pre>
+</div>
+<div id="profiles-9" class="section level4">
+<h4>6 profiles</h4>
+<pre class="r"><code>prob &lt;- as.data.frame(m6$z) # turn probabilities into dataframe
+prob$class &lt;- m6$classification # get assigned profiles
+
+c1 &lt;- prob %&gt;% # calculate average posterior probabilities
+  filter(class == 1)
+c2 &lt;- prob %&gt;%
+  filter(class == 2)
+c3 &lt;- prob %&gt;%
+  filter(class == 3)
+c4 &lt;- prob %&gt;%
+  filter(class == 4)
+c5 &lt;- prob %&gt;%
+  filter(class == 5)
+c6 &lt;- prob %&gt;%
+  filter(class == 6)
+
+pp &lt;- as.data.frame(rbind(colMeans(c1), colMeans(c2), colMeans(c3), colMeans(c4), colMeans(c5), colMeans(c6)))
+print(pp)</code></pre>
+<pre><code>##            V1           V2           V3          V4           V5           V6
+## 1 0.853476654 3.887042e-05 2.610239e-03 0.135119960 6.974933e-03 1.779343e-03
+## 2 0.004251414 9.124043e-01 2.466190e-02 0.002117921 1.579629e-06 5.656293e-02
+## 3 0.004741431 1.531379e-02 9.198334e-01 0.011593803 2.699375e-06 4.851487e-02
+## 4 0.068595716 1.848554e-05 1.550294e-04 0.912238636 1.899212e-02 8.223593e-09
+## 5 0.051733230 4.267858e-05 6.227042e-05 0.049868990 8.982061e-01 8.673234e-05
+## 6 0.003920284 3.348284e-02 6.461552e-02 0.003039402 3.333220e-06 8.949386e-01
+##   class
+## 1     1
+## 2     2
+## 3     3
+## 4     4
+## 5     5
+## 6     6</code></pre>
+</div>
+</div>
+<div id="section-7" class="section level3 unnumbered">
+<h3></h3>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="validation" class="section level2">
+<h2>7. Validation</h2>
+<p>Based on statistical fit (BIC, ICL), membership probabilities, and theoretical appropriateness, we chose the 5-class solution. To ensure that interpretation is theoretically meaningful and appropriate, we have re-ordened the profiles to match the motivational continuum proposed from SDT. The six profiles are labelled as:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Strongly amotivated</strong>: primarily amotivation with some (read: average levels of) other forms of motivational regulation.<br />
+</li>
+<li><strong>Amotivated</strong>: primarily amotivation, but also high levels of external and introjected regulation.</li>
+<li><strong>Low in motivation</strong>: low levels of all types of behavioral regulation.</li>
+<li><strong>Moderate in motivation</strong>: about average on all forms of behavioral regulation.</li>
+<li><strong>High in motivation</strong>: high in autonomous forms of motivation (i.e. intrinsic, integrated, identified), and also in controlled forms (i.e. external, introjected), but low in amotivation.</li>
+</ol>
+<p><strong>Note</strong> that we concluded earlier that, on average, our sample scored relatively high on all forms of behavioral regulation. Therefore, a profile such as ‘Amotivated’ must be understood in the context of these average scores.</p>
+<hr />
+<p>Let’s describe our final model more neatly, and make it interactive.</p>
+<pre class="r"><code># Trimming values exceeding +1 SD
+means &lt;- data.frame(m5$parameters$mean,
+                    stringsAsFactors = F) %&gt;%
+  rownames_to_column() %&gt;%
+  rename(Motivation = rowname) %&gt;%
+  melt(id.vars = &quot;Motivation&quot;, variable.name = &quot;Profile&quot;, value.name = &quot;Mean&quot;) %&gt;%
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean &gt; 1, 1, Mean))
+
+# Change labels
+means$Profile &lt;- plyr::revalue(means$Profile, 
+                               c(&quot;X1&quot;=&quot;Moderate in motivation&quot;, &quot;X2&quot; = &quot;Low in motivation&quot;, &quot;X3&quot; = &quot;Strongly amotivated&quot;, &quot;X4&quot; = &quot;Amotivated&quot;, &quot;X5&quot; = &quot;High in motivation&quot;))
+means$Motivation &lt;- plyr::revalue(means$Motivation, c(&quot;amotivation&quot; = &quot;Amotivation&quot;, &quot;external&quot; = &quot;External&quot;, &quot;introjected&quot; = &quot;Introjected&quot;, &quot;identified&quot; = &quot;Identified&quot;, &quot;integrated&quot; = &quot;Integrated&quot;,&quot;intrinsic&quot; = &quot;Intrinsic&quot;))
+# Change order
+means$Profile &lt;- factor(means$Profile, # Relevel group factor
+levels = c(&quot;Strongly amotivated&quot;, &quot;Amotivated&quot;, &quot;Low in motivation&quot;, &quot;Moderate in motivation&quot;, &quot;High in motivation&quot; ))
+
+
+p &lt;- means %&gt;%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_point(size = 2) + 
+  geom_line(size = 1) +
+  scale_x_discrete(limits = c(&quot;Amotivation&quot;, &quot;External&quot;, &quot;Introjected&quot;, &quot;Identified&quot;, &quot;Integrated&quot;, &quot;Intrinsic&quot;)) +
+  labs(x = NULL, y = &quot;Standardized mean weighted factor scores&quot;) +
+ scale_colour_manual(values=c(&quot;#000000&quot;, &quot;#E69F00&quot;, &quot;#56B4E9&quot;, &quot;#009E73&quot;, &quot;#F0E442&quot;)) + theme_bw(base_family=&quot;serif&quot;, base_size = 16) + geom_hline(yintercept = 0, linetype=&quot;dashed&quot;) + theme(axis.text.x = element_text(family=&quot;serif&quot;, angle = 45, hjust = 1), legend.position = &quot;right&quot;, legend.title=element_blank())
+
+#png((paste(&quot;images&quot;, &quot;/&quot;, &quot;lpa.png&quot;, sep = &quot;&quot;))) # save the plot as .png</code></pre>
+<p>And let’s turn this static plot into an <em>interactive</em> one. Here, it is not really necessary, but in a LPA with more indiciators it may be tough to read the values of each indicator. We will use the <em>plotly</em>-package.</p>
+<pre class="r"><code>library(plotly)
+
+ggplotly(p, tooltip = c(&quot;Motivation&quot;, &quot;Mean&quot;)) %&gt;%
+  layout(legend = list(orientation = &quot;h&quot;, y = 4))</code></pre>
+<div id="htmlwidget-1f68675979f8235f9c69" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1f68675979f8235f9c69">{"x":{"data":[{"x":[1,2,3,4,5,6],"y":[1,0.12,-0.22,-0.14,-0.06,-0.14],"text":["Motivation: Amotivation<br />Mean:  1.00","Motivation: External<br />Mean:  0.12","Motivation: Introjected<br />Mean: -0.22","Motivation: Identified<br />Mean: -0.14","Motivation: Integrated<br />Mean: -0.06","Motivation: Intrinsic<br />Mean: -0.14"],"type":"scatter","mode":"markers+lines","marker":{"autocolorscale":false,"color":"rgba(0,0,0,1)","opacity":1,"size":7.55905511811024,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)"}},"hoveron":"points","name":"Strongly amotivated","legendgroup":"Strongly amotivated","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","line":{"width":3.77952755905512,"color":"rgba(0,0,0,1)","dash":"solid"},"frame":null},{"x":[1,2,3,4,5,6],"y":[1,0.49,0.46,0.36,-0.21,0.04],"text":["Motivation: Amotivation<br />Mean:  1.00","Motivation: External<br />Mean:  0.49","Motivation: Introjected<br />Mean:  0.46","Motivation: Identified<br />Mean:  0.36","Motivation: Integrated<br />Mean: -0.21","Motivation: Intrinsic<br />Mean:  0.04"],"type":"scatter","mode":"markers+lines","marker":{"autocolorscale":false,"color":"rgba(230,159,0,1)","opacity":1,"size":7.55905511811024,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(230,159,0,1)"}},"hoveron":"points","name":"Amotivated","legendgroup":"Amotivated","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","line":{"width":3.77952755905512,"color":"rgba(230,159,0,1)","dash":"solid"},"frame":null},{"x":[1,2,3,4,5,6],"y":[-0.54,-0.64,-0.41,-0.53,-0.37,-0.49],"text":["Motivation: Amotivation<br />Mean: -0.54","Motivation: External<br />Mean: -0.64","Motivation: Introjected<br />Mean: -0.41","Motivation: Identified<br />Mean: -0.53","Motivation: Integrated<br />Mean: -0.37","Motivation: Intrinsic<br />Mean: -0.49"],"type":"scatter","mode":"markers+lines","marker":{"autocolorscale":false,"color":"rgba(86,180,233,1)","opacity":1,"size":7.55905511811024,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(86,180,233,1)"}},"hoveron":"points","name":"Low in motivation","legendgroup":"Low in motivation","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","line":{"width":3.77952755905512,"color":"rgba(86,180,233,1)","dash":"solid"},"frame":null},{"x":[1,2,3,4,5,6],"y":[0,-0.07,0.04,-0.11,-0.04,-0.17],"text":["Motivation: Amotivation<br />Mean:  0.00","Motivation: External<br />Mean: -0.07","Motivation: Introjected<br />Mean:  0.04","Motivation: Identified<br />Mean: -0.11","Motivation: Integrated<br />Mean: -0.04","Motivation: Intrinsic<br />Mean: -0.17"],"type":"scatter","mode":"markers+lines","marker":{"autocolorscale":false,"color":"rgba(0,158,115,1)","opacity":1,"size":7.55905511811024,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,158,115,1)"}},"hoveron":"points","name":"Moderate in motivation","legendgroup":"Moderate in motivation","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","line":{"width":3.77952755905512,"color":"rgba(0,158,115,1)","dash":"solid"},"frame":null},{"x":[1,2,3,4,5,6],"y":[-0.54,0.67,0.47,0.72,0.69,0.85],"text":["Motivation: Amotivation<br />Mean: -0.54","Motivation: External<br />Mean:  0.67","Motivation: Introjected<br />Mean:  0.47","Motivation: Identified<br />Mean:  0.72","Motivation: Integrated<br />Mean:  0.69","Motivation: Intrinsic<br />Mean:  0.85"],"type":"scatter","mode":"markers+lines","marker":{"autocolorscale":false,"color":"rgba(240,228,66,1)","opacity":1,"size":7.55905511811024,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(240,228,66,1)"}},"hoveron":"points","name":"High in motivation","legendgroup":"High in motivation","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","line":{"width":3.77952755905512,"color":"rgba(240,228,66,1)","dash":"solid"},"frame":null},{"x":[0.4,6.6],"y":[0,0],"text":"","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":30.8775425487754,"r":10.6268161062682,"b":70.1223500756144,"l":71.1996679119967},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"serif","size":21.2536322125363},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.4,6.6],"tickmode":"array","ticktext":["Amotivation","External","Introjected","Identified","Integrated","Intrinsic"],"tickvals":[1,2,3,4,5,6],"categoryorder":"array","categoryarray":["Amotivation","External","Introjected","Identified","Integrated","Intrinsic"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":5.31340805313408,"tickwidth":0.966074191478924,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"serif","size":17.0029057700291},"tickangle":-45,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.966074191478924,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"serif","size":21.2536322125363}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.722,1.082],"tickmode":"array","ticktext":["-0.5","0.0","0.5","1.0"],"tickvals":[-0.5,0,0.5,1],"categoryorder":"array","categoryarray":["-0.5","0.0","0.5","1.0"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":5.31340805313408,"tickwidth":0.966074191478924,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"serif","size":17.0029057700291},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.966074191478924,"zeroline":false,"anchor":"x","title":{"text":"Standardized mean weighted factor scores","font":{"color":"rgba(0,0,0,1)","family":"serif","size":21.2536322125363}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.966074191478924,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":2.74874731567645,"font":{"color":"rgba(0,0,0,1)","family":"serif","size":17.0029057700291},"y":4,"orientation":"h"},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"26cc2b65531e":{"x":{},"y":{},"colour":{},"type":"scatter"},"26cc31bc116a":{"x":{},"y":{},"colour":{}},"26cc6dbf3cd7":{"yintercept":{}}},"cur_data":"26cc2b65531e","visdat":{"26cc2b65531e":["function (y) ","x"],"26cc31bc116a":["function (y) ","x"],"26cc6dbf3cd7":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p><strong>To-do</strong>: explore assumptions about variance, by comparing the VEV,5 model with models with correlated indicators, and equal variances across time (see <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5096736/">this paper</a>).</p>
+<hr />
+</div>
+</div>
+<div id="step-2" class="section level1">
+<h1>Step 2</h1>
+<p>In the second step we conducted LPA separately for each set of latent profile indicators (i.e., for each time point), fixing the measurement parameters so that the profiles are the same as in step 1, allowing us to obtain profile variables and classification errors for each time point.</p>
+</div>
+
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkxhdGVudCBQcm9maWxlIFRyYW5zaXRpb24gQW5hbHlzaXMiDQpvdXRwdXQ6DQogIGh0bWxfZG9jdW1lbnQ6DQogICAgdG9jOiB0cnVlDQogICAgdG9jX2Zsb2F0OiB0cnVlDQogICAgY29sbGFwc2VkOiBmYWxzZQ0KICAgIG51bWJlcl9zZWN0aW9uczogZmFsc2UNCiAgICB0b2NfZGVwdGg6IDINCiAgICBjb2RlX2ZvbGRpbmc6IHNob3cNCiAgICBjb2RlX2Rvd25sb2FkOiB5ZXMNCi0tLQ0KDQpgYGB7ciBzZXR1cCwgaW5jbHVkZT1GQUxTRX0NCmtuaXRyOjpvcHRzX2NodW5rJHNldChtZXNzYWdlPUZBTFNFLHdhcm5pbmc9RkFMU0UsIGNhY2hlPVRSVUUpDQpgYGANCg0KPGJyPg0KDQojIyBFeHBsb3JpbmcNCg0KKkxhc3QgZWRpdGVkOiBKYW51YXJ5IDI1LCAyMDIxKg0KDQo8YnI+DQoNCkluIHRoZSBmb2xsb3dpbmcsIHdlIHdpbGwgZXhwbG9yZSBtb3RpdmF0aW9uYWwgcHJvZmlsZXMgaW4gdGhlIGNvbnRleHQgb2YgbG9uZ2l0dWRpbmFsIGRhdGEsIHVzaW5nIFNEVCBhcyBhIHRoZW9yZXRpY2FsIGZyYW1ld29yay4gV2Ugd2lsbCBleHBsb3JlIG1vdmVtZW50IGJldHdlZW4gbW90aXZhdGlvbmFsIHByb2ZpbGVzIG92ZXIgdGltZS4NCg0KPGJyPg0KDQojIyBBcHByb2FjaA0KDQpGaXJzdCwgd2Ugb2J0YWluIHdlaWdodGVkIGZhY3Rvci1zY29yZXMgZm9yIGVhY2ggU01TLXN1YnNjYWxlIHdpdGggQ0ZBIHVzaW5nIE1MRSwgYXMgaW5wdXQgZm9yIG91ciBzdWJzZXF1ZW50IExQQS4gVGhlbiwgd2UgdXNlIGEgdGhyZWUtc3RlcCBhcHByb2FjaCAoc2VlIFt0aGlzIGFydGljbGVdKGh0dHBzOi8vd3d3LnRhbmRmb25saW5lLmNvbS9kb2kvcGRmLzEwLjEwODAvMTA3MDU1MTEuMjAxNC45MTUxODEpOyBvciB0aGUgcGFwZXIgYnkgW0VtbS1Db2xsaXNvbiBhbmQgY29sbGVhZ3Vlc10oaHR0cHM6Ly93d3cuc2NpZW5jZWRpcmVjdC5jb20vc2NpZW5jZS9hcnRpY2xlL3BpaS9TMTQ2OTAyOTIxOTMwMzg1MSkgd2hvIHVzZWQgdGhlIHNhbWUgcHJvY2VkdXJlKS4NCg0KDQoNClRoZW4sIHdlIHVzZSBhIHRocmVlLXN0ZXAgYXBwcm9hY2g6DQoNCg0KMy4gRXN0aW1hdGUgdGhlIG1vdmVtZW50IGJldHdlZW4gbW90aXZhdGlvbmFsIHByb2ZpbGVzIGFjY3JvcyB0aW1lIHBvaW50cywga2VlcGluZyB0aGUgbGF0ZW50IHByb2ZpbGVzIGF0IGVhY2ggdGltZSBwb2ludCBmaXhlZCBhbmQgYWNjb3VudGluZyBmb3IgbWVhc3VyZW1lbnQgZXJyb3IgaW4gcHJvZmlsZSBhc3NpZ25tZW50LiANCg0KLS0tDQoNCiMgU3RlcCAxDQoNClRocm91Z2ggc3RlcCAxIHdlIGlkZW50aWZpZWQgdGhlIG1vdGl2YXRpb25hbCBwcm9maWxlcyBmb3IgZWFjaCB0aW1lcG9pbnQsIHVzaW5nIGRhdGEgZnJvbSBhbGwgMyB0aW1lIHBvaW50cyAoYW5kIHRodXMgYXNzdW1pbmcgdGhlIG9ic2VydmF0aW9ucyBvZiBlYWNoIHRpbWUgcG9pbnQgdG8gYmUgaW5kZXBlbmRlbnQgZnJvbSBvdGhlcnMpLg0KDQojIyAxLiBEYXRhDQoNCkxldCdzIGdldCBvdXIgJ2NsZWFuZWQnIFNNUy1kYXRhLCBmb3IgZWFjaCB3YXZlLCBhbmQgdGhlbiBiaW5kIHRoZW0gdG9nZXRoZXIgKGFuZCB0aHVzIGFzc3VtZSB0aGVtIHRvIGJlIGluZGVwZW5kZW50IG9ic2VydmF0aW9ucykNCg0KYGBge3IsIHdhcm5pbmc9RkFMU0UsIG1lc3NhZ2U9RkFMU0V9DQpsaWJyYXJ5KHNqbGFiZWxsZWQpDQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KGNhcmVsZXNzKQ0KbGlicmFyeShwc3ljaCkNCg0KbG9hZCgiZGF0YV9hYnNfcHVibGljX3YyLlJEYXRhIikgIyBsb2FkIGRhdGENCmRhdGFfYWJzX3B1YmxpYyA8LSB1bmxhYmVsKGRhdGFfYWJzX3B1YmxpYywgdmVyYm9zZT1GKQ0KDQojIHN1YnNldCBzbXMgZGF0YSBpbiBlYWNoIHdhdmUNCg0Kc21zX3cxIDwtIGRhdGFfYWJzX3B1YmxpYyAlPiUgc2VsZWN0KFcxX00xXzEsIFcxX00xXzIsIFcxX00xXzMsIFcxX00xXzQsIFcxX00xXzUsIFcxX00xXzYsIFcxX00xXzcsIFcxX00xXzgsIFcxX00yXzEsIFcxX00yXzIsIFcxX00yXzMsIFcxX00yXzQsIFcxX00yXzUsIFcxX00yXzYsIFcxX00yXzcsIFcxX00yXzgsIFcxX00zXzEsIFcxX00zXzIsIFcxX00zXzMsIFcxX00zXzQsIFcxX00zXzUsIFcxX00zXzYsIFcxX00zXzcsIFcxX00zXzgpDQpzbXNfdzIgPC0gZGF0YV9hYnNfcHVibGljICU+JSBzZWxlY3QoVzJfTTFfMSwgVzJfTTFfMiwgVzJfTTFfMywgVzJfTTFfNCwgVzJfTTFfNSwgVzJfTTFfNiwgVzJfTTFfNywgVzJfTTFfOCwgVzJfTTJfMSwgVzJfTTJfMiwgVzJfTTJfMywgVzJfTTJfNCwgVzJfTTJfNSwgVzJfTTJfNiwgVzJfTTJfNywgVzJfTTJfOCwgVzJfTTNfMSwgVzJfTTNfMiwgVzJfTTNfMywgVzJfTTNfNCwgVzJfTTNfNSwgVzJfTTNfNiwgVzJfTTNfNywgVzJfTTNfOCkgDQpzbXNfdzMgPC0gZGF0YV9hYnNfcHVibGljICU+JSBzZWxlY3QoVzNfTTFfMSwgVzNfTTFfMiwgVzNfTTFfMywgVzNfTTFfNCwgVzNfTTFfNSwgVzNfTTFfNiwgVzNfTTFfNywgVzNfTTFfOCwgVzNfTTJfMSwgVzNfTTJfMiwgVzNfTTJfMywgVzNfTTJfNCwgVzNfTTJfNSwgVzNfTTJfNiwgVzNfTTJfNywgVzNfTTJfOCwgVzNfTTNfMSwgVzNfTTNfMiwgVzNfTTNfMywgVzNfTTNfNCwgVzNfTTNfNSwgVzNfTTNfNiwgVzNfTTNfNywgVzNfTTNfOCkNCg0KIyBtYWtlIGEgJ3N0cmluZycgdmFyaWFibGUgDQpzbXNfdzEgPC0gc21zX3cxICU+JQ0KICBtdXRhdGUoc3RyaW5nX3cxID0gbG9uZ3N0cmluZyguKSkgJT4lDQogIG11dGF0ZShtZF93MSA9IG91dGxpZXIoLiwgcGxvdCA9IEZBTFNFKSkNCnNtc193MiA8LSBzbXNfdzIgJT4lDQogIG11dGF0ZShzdHJpbmdfdzIgPSBsb25nc3RyaW5nKC4pKSAlPiUNCiAgbXV0YXRlKG1kX3cyID0gb3V0bGllciguLCBwbG90ID0gRkFMU0UpKSANCnNtc193MyA8LSBzbXNfdzMgJT4lDQogIG11dGF0ZShzdHJpbmdfdzMgPSBsb25nc3RyaW5nKC4pKSAlPiUNCiAgbXV0YXRlKG1kX3czID0gb3V0bGllciguLCBwbG90ID0gRkFMU0UpKSANCg0KIyBjYXAgc3RyaW5nIHJlc3BvbmRpbmcgYW5kIHVzZSBNRA0KY3V0b2ZmX3cxIDwtIChxY2hpc3EocCA9IDEgLSAuMDAxLCBkZiA9IG5jb2woc21zX3cxKSkpDQpzbXNfdzEgPC0gc21zX3cxICU+JQ0KICBmaWx0ZXIoc3RyaW5nX3cxIDw9IDEwLA0KICAgICAgICAgbWRfdzEgPCBjdXRvZmZfdzEpICU+JQ0KICBzZWxlY3QoLXN0cmluZ193MSwgLW1kX3cxKQ0KDQpjdXRvZmZfdzIgPC0gKHFjaGlzcShwID0gMSAtIC4wMDEsIGRmID0gbmNvbChzbXNfdzIpKSkNCnNtc193MiA8LSBzbXNfdzIgJT4lDQogIGZpbHRlcihzdHJpbmdfdzIgPD0gMTAsDQogICAgICAgICBtZF93MiA8IGN1dG9mZl93MikgJT4lDQogIHNlbGVjdCgtc3RyaW5nX3cyLCAtbWRfdzIpDQoNCmN1dG9mZl93MyA8LSAocWNoaXNxKHAgPSAxIC0gLjAwMSwgZGYgPSBuY29sKHNtc193MykpKQ0Kc21zX3czIDwtIHNtc193MyAlPiUNCiAgZmlsdGVyKHN0cmluZ193MyA8PSAxMCwNCiAgICAgICAgIG1kX3czIDwgY3V0b2ZmX3czKSAlPiUNCiAgc2VsZWN0KC1zdHJpbmdfdzMsIC1tZF93MykNCg0KIyBiaW5kIHRvZ2V0aGVyIChoZW5jZSBhc3N1bWluZyBpbmRlcGVuZGVudCBvYnNlcnZhdGlvbnMpDQpuYW1lcyhzbXNfdzEpIDwtIG5hbWVzKHNtc193MikgPC0gbmFtZXMoc21zX3czKSA8LSBjKCJNMV8xIiwgIk0xXzIiLCAiTTFfMyIsICJNMV80IiwgIk0xXzUiLCAiTTFfNiIsICJNMV83IiwgIk0xXzgiLCAiTTJfMSIsICJNMl8yIiwgIk0yXzMiLCAiTTJfNCIsICJNMl81IiwgIk0yXzYiLCAiTTJfNyIsICJNMl84IiwgIk0zXzEiLCAiTTNfMiIsICJNM18zIiwgIk0zXzQiLCAiTTNfNSIsICJNM182IiwgIk0zXzciLCAiTTNfOCIpDQpzbXMgPC0gcmJpbmQoc21zX3cxLCBzbXNfdzIsIHNtc193MykNCnNtcyRpZCA8LSAxOm5yb3coc21zKSAjIGFkZCBpZGVudGlmaWVyDQpgYGANCg0KPGJyPg0KDQotLS0tDQoNCiMjIDIuIENGQQ0KDQpUZWxsIExhdmFhbiB0aGUgY29uZmlybWF0b3J5IHN0cnVjdHVyZS4NCg0KYGBge3J9DQpsaWJyYXJ5KGxhdmFhbikNCg0KbW90aXZhdGlvbl9tb2RlbCA8LSAiDQphbW90aXZhdGlvbiA9fiBNMV81ICsgTTJfNCArIE0zXzEgKyBNM182DQpleHRlcm5hbCAgICA9fiBNMV80ICsgTTJfMyArIE0zXzMgKyBNM184DQppbnRyb2plY3RlZCA9fiBNMV83ICsgTTJfMiArIE0yXzggKyBNM183DQppZGVudGlmaWVkICA9fiBNMV8zICsgTTFfOCArIE0yXzcgKyBNM180DQppbnRlZ3JhdGVkICA9fiBNMV8yICsgTTJfMSArIE0yXzUgKyBNM181DQppbnRyaW5zaWMgICA9fiBNMV8xICsgTTFfNiArIE0yXzYgKyBNM18yDQppZCB+fiBpZCINCg0KYGBgDQoNCk5vdyBsZXQncyBoYXZlIGEgbG9vayBhdCBkaWZmZXJlbnQgZml0IGluZGljZXMuDQogDQpgYGB7cn0NCmZpdCA8LSBjZmEobW90aXZhdGlvbl9tb2RlbCwgZGF0YT1zbXMsDQogICAgICAgICAgIHN0ZC5sdj1GQUxTRSkgIyB0aGlzIG1heSBiZSBsZWZ0IG91dCBhcyB3ZWxsDQpwcmludChmaXRNZWFzdXJlcyhmaXQsIGMoImNoaXNxIiwgImRmIiwgInB2YWx1ZSIsICJjZmkiLCAicm1zZWEiLCAic3JtciIpLCBvdXRwdXQgPSAidGV4dCIpLCBhZGQuaDAgPSBUUlVFKQ0KYGBgDQoNCkFuZCBnZXQgdGhlIGZhY3RvciBzY29yZXMgKHdlIGZpeGVkIHRoZSBsb2FkaW5nIG9mIHRoZSBmaXJzdCB2YXJpYWJsZSBvZiBlYWNoIGxhdGVudCB2YXJpYWJsZSB0byAxKS4NCldlIGNhbGN1bGF0ZSB3ZWlnaHRlZCBmYWN0b3Igc2NvcmVzIGZvciBlYWNoIG1vdGl2YXRpb25hbCBzdWJzY2FsZSBieSBtdWx0aXBseWluZyB0aGUgZmFjdG9yIGxvYWRpbmcgb2YgZWFjaCBpdGVtIHRvIHRoZSBzY2FsZWQgc2NvcmUgZm9yIGVhY2ggaXRlbSBiZWZvcmUgc3VtbWluZy4NCg0KYGBge3J9DQpsb2FkaW5nIDwtIHBhcmFtZXRlckVzdGltYXRlcyhmaXQpICMgZ2V0IGxvYWRpbmdzDQpsb2FkaW5nIDwtIGxvYWRpbmckZXN0WzE6MjRdICMgc3Vic2V0DQoNCiMgd2VpZ2h0ZWQgc3VtIChmYWN0b3IpIHNjb3Jlcw0KYW1vdGl2YXRpb24gPC0gcm93TWVhbnMoY2JpbmQoKHNtcyRNMV81KmxvYWRpbmdbMV0pLCAoc21zJE0yXzQqbG9hZGluZ1syXSksIChzbXMkTTNfMSpsb2FkaW5nWzNdKSwgKHNtcyRNM182KmxvYWRpbmdbNF0pKSkNCmV4dGVybmFsIDwtIHJvd01lYW5zKGNiaW5kKChzbXMkTTFfNCpsb2FkaW5nWzVdKSwgKHNtcyRNMl8zKmxvYWRpbmdbNl0pLCAoc21zJE0zXzMqbG9hZGluZ1s3XSksICAgKHNtcyRNM184KmxvYWRpbmdbOF0pKSkNCmludHJvamVjdGVkIDwtIHJvd01lYW5zKGNiaW5kKChzbXMkTTFfNypsb2FkaW5nWzldKSwgKHNtcyRNMl8yKmxvYWRpbmdbMTBdKSwgKHNtcyRNMl84KmxvYWRpbmdbMTFdKSwgKHNtcyRNM183KmxvYWRpbmdbMTJdKSkpDQppZGVudGlmaWVkIDwtIHJvd01lYW5zKGNiaW5kKChzbXMkTTFfMypsb2FkaW5nWzEzXSksIChzbXMkTTFfOCpsb2FkaW5nWzE0XSksIChzbXMkTTJfNypsb2FkaW5nWzE1XSksIChzbXMkTTNfNCpsb2FkaW5nWzE2XSkpKQ0KaW50ZWdyYXRlZCA8LSByb3dNZWFucyhjYmluZCgoc21zJE0xXzIqbG9hZGluZ1sxN10pLCAoc21zJE0yXzEqbG9hZGluZ1sxOF0pLCAoc21zJE0yXzUqbG9hZGluZ1sxOV0pLCAoc21zJE0zXzUqbG9hZGluZ1syMF0pKSkNCmludHJpbnNpYyA8LSByb3dNZWFucyhjYmluZCgoc21zJE0xXzEqbG9hZGluZ1syMV0pLCAoc21zJE0xXzYqbG9hZGluZ1syMl0pLCAoc21zJE0yXzYqbG9hZGluZ1syM10pLCAoc21zJE0zXzIqbG9hZGluZ1syNF0pKSkNCg0KIyBtYWtlIGRmIHdpdGggY29tcGxldGUgb2JzZXJ2YXRpb25zIChsaXN0d2lzZSBkZWxldGlvbikNCndlaWdodGVkIDwtIGNiaW5kKGFtb3RpdmF0aW9uLCBleHRlcm5hbCwgaW50cm9qZWN0ZWQsIGlkZW50aWZpZWQsIGludGVncmF0ZWQsIGludHJpbnNpYykNCndlaWdodGVkIDwtIGFzLmRhdGEuZnJhbWUod2VpZ2h0ZWRbY29tcGxldGUuY2FzZXMod2VpZ2h0ZWQpLCBdKQ0KYGBgDQoNCjxicj4NCg0KLS0tLQ0KDQojIyAzLiBEZXNjcmlwdGl2ZXMNCg0KTGV0J3MgZ2V0IHNvbWUgZGVzY3JpcHRpdmUgc3RhdGlzdGljcy4NCg0KYGBge3J9DQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeSh0aWR5cikNCmxpYnJhcnkoa25pdHIpDQpsaWJyYXJ5KGthYmxlRXh0cmEpDQoNCmlucHV0IDwtIHdlaWdodGVkICU+JSANCiAgZ2F0aGVyKCJWYXJpYWJsZSIsICJ2YWx1ZSIpICU+JSANCiAgZ3JvdXBfYnkoVmFyaWFibGUpICU+JQ0KICBzdW1tYXJpc2UoTWVhbj1tZWFuKHZhbHVlLCBuYS5ybT1UUlVFKSwgDQogICAgICAgICAgICBTRD1zZCh2YWx1ZSwgbmEucm09VFJVRSksIA0KICAgICAgICAgICAgbWluPW1pbih2YWx1ZSwgbmEucm09VFJVRSksIA0KICAgICAgICAgICAgbWF4PW1heCh2YWx1ZSwgbmEucm09VFJVRSkpDQoNCmtuaXRyOjprYWJsZShpbnB1dCwgZGlnaXRzPTIsICJodG1sIiwgY2FwdGlvbj0iRGVzY3JpcHRpdmVzIG9mIFNNUyAoYWdncmVnYXRlZCk6IHdlaWdodGVkIHN1bSBzY29yZXMiKSAlPiUgDQogIGthYmxlRXh0cmE6OmthYmxlX3N0eWxpbmcoYm9vdHN0cmFwX29wdGlvbnMgPSBjKCJzdHJpcGVkIiwgImhvdmVyIikpIA0KYGBgDQoNCkF0IGZhY2UgdmFsdWUsIHJlc3BvbmRlbnRzIHNlZW0gdG8gYmUgcHJldHR5IGhpZ2ggaW4gYWxsIHR5cGVzIG9mIG1vdGl2YXRpb24gKGNvbXBhcmUgd2l0aCB0aGUgc2FtcGxlIG9mIFtFbW0tQ29sbGlzb24gYW5kIGNvbGxlYWd1ZXNdKGh0dHBzOi8vd3d3LnNjaWVuY2VkaXJlY3QuY29tL3NjaWVuY2UvYXJ0aWNsZS9waWkvUzE0NjkwMjkyMTkzMDM4NTEpKS4NCg0KPGJyPg0KDQotLS0tDQoNCiMjIDQuIExQQSAgDQoNCk5vdyB3ZSB1c2UgdGhlIGFnZ3JlZ2F0ZWQgU01TIGRhdGEgdG8gaWRlbnRpZnkgbW90aXZhdGlvbmFsIHByb2ZpbGVzLCBpbiBhIHNlcXVlbmNlIG9mIG1vZGVscyB3aXRoIGFuIGluY3JlYXNpbmcgbnVtYmVyIG9mIHByb2ZpbGVzIChmcm9tIDIgdG8gLi4uKSwgdG8gYXNjZXJ0YWluIHdoZXRoZXIgbW9yZSBjb21wbGV4IChpLmUuIG1vcmUgcHJvZmlsZXMpIG9yIHBhcnNpbW9uaW91cyAoaS5lLiBmZXdlciBwcm9maWxlcykgbW9kZWxzIHByb3ZpZGVkIHRoZSBiZXN0IGRlc2NyaXB0aW9uIChmaXQpIG9mIHRoZSBkYXRhLiBXZSB1c2UgdGhlIEJJQyBhbmQgSUNMICh3aGljaCBwZW5hbGl6ZXMgb24gZW50cm9weSkgdG8gc2VlIHdoaWNoIG1vZGVsIHByb3ZpZGVzIHRoZSBiZXN0IHN0YXRpc3RpY2FsIGZpdCB0byB0aGUgZGF0YS4gQnV0IGZpcnN0LCB3ZSB0cmFuc2Zvcm0gdGhlIFNNUy1kYXRhIGludG8gc3RhbmRhcmRpemVkIHotc2NvcmVzLCBtZWFuaW5nIHRoYXQgcHJvZmlsZSBtZWFucyByZWZsZWN0IHN0YW5kYXJkIGRldmlhdGlvbiAoU0QpIHVuaXRzIGFib3ZlIG9yIGJlbG93IHRoZSBzYW1wbGUgbWVhbiAod2hpY2ggaXMgc2V0IHRvIDApLg0KDQpgYGB7cn0NCmNsdXMgPC0gd2VpZ2h0ZWQgJT4lDQogIG5hLm9taXQoKSAlPiUgIyBsaXN0d2lzZSBkZWxldGlvbg0KICBtdXRhdGVfYWxsKGxpc3Qoc2NhbGUpKSAjIHN0YW5kYXJkaXplIGluZGljYXRvcnMNCmBgYA0KDQojIyMgey50YWJzZXQgLnRhYnNldC1mYWRlfQ0KDQojIyMjIEJJQw0KYGBge3IgY2xhc3Muc291cmNlID0gJ2ZvbGQtaGlkZSd9DQpsaWJyYXJ5KG1jbHVzdCkNCkJJQyA8LSBtY2x1c3RCSUMoY2x1cykgDQpwbG90KEJJQykNCmBgYA0KDQojIyMjIElDTA0KYGBge3IgY2xhc3Muc291cmNlID0gJ2ZvbGQtaGlkZSd9DQpsaWJyYXJ5KG1jbHVzdCkNCklDTCA8LSBtY2x1c3RJQ0woY2x1cykgDQpwbG90KElDTCkNCmBgYA0KDQojIyMgey19DQoNClVzZSB0aGUgKnN1bW1hcnkqLWZ1bmN0aW9uIHRvIHNob3cgdGhlIHRvcC10aHJlZSBtb2RlbHMgYmFzZWQgb24gQklDIGFuZCBJQ0wuIChPaCBhbmQgYnR3LCBbaGVyZSBpcyBhIGxpbmtdKGh0dHBzOi8vc3RhdHMuc3RhY2tleGNoYW5nZS5jb20vcXVlc3Rpb25zLzIzNzIyMC9tY2x1c3QtbW9kZWwtc2VsZWN0aW9uKSB0aGF0IGV4cGxhaW5zIHdoeSBNY2x1c3QgZGVmYXVsdHMgdG8gdGhlIG1vZGVsIHdpdGggdGhlIGhpZ2hlc3QgQklDIHZhbHVlIGFzIHRoZSAiYmVzdCIgbW9kZWwpLg0KDQojIyMgey50YWJzZXQgLnRhYnNldC1mYWRlfQ0KDQojIyMjIEJJQw0KYGBge3IgY2xhc3Muc291cmNlID0gJ2ZvbGQtaGlkZSd9DQpzdW1tYXJ5KEJJQykNCmBgYA0KDQojIyMjIElDTA0KYGBge3IgY2xhc3Muc291cmNlID0gJ2ZvbGQtaGlkZSd9DQpzdW1tYXJ5KElDTCkNCmBgYA0KDQojIyMgey19DQoNCjxicj4NCg0KLS0tLQ0KDQojIyA1LiBWaXN1YWxpemUgDQoNCiMjIyB7LnRhYnNldCAudGFic2V0LWZhZGV9DQoNClZFViwgOSBwcm92aWRlZCB0aGUgYmVzdC1maXR0aW5nIG1vZGVsIChmb2xsb3dlZCBieSA2IGFuZCA1KS4gTGV0J3MgZXN0aW1hdGUgYSBzZXF1ZW5jZSBvZiBtb2RlbHMsIHdpdGggYW4gaW5jcmVhc2luZyBudW1iZXIgb2YgcHJvZmlsZXMsIGFuZCBwbG90IHRoZW0gdG8gYXNzZXNzIHRoZWlyIHRoZW9yZXRpY2FsIGFsaWdubWVudC4NCg0KIyMjIyAyIHByb2ZpbGVzDQoNCmBgYHtyIGNsYXNzLnNvdXJjZSA9ICdmb2xkLWhpZGUnfQ0KbTIgPC0gTWNsdXN0KGNsdXMsIG1vZGVsTmFtZXMgPSAiVkVWIiwgRyA9IDIsIHggPSBCSUMpDQpzdW1tYXJ5KG0yKQ0KDQojIEV4dHJhY3QgbWVhbiB3ZWlnaHRlZCBmYWN0b3Igc2NvcmVzDQpsaWJyYXJ5KHJlc2hhcGUyKQ0KbWVhbnMgPC0gZGF0YS5mcmFtZShtMiRwYXJhbWV0ZXJzJG1lYW4sDQogICAgICAgICAgICAgICAgICAgIHN0cmluZ3NBc0ZhY3RvcnMgPSBGKSAlPiUNCiAgcm93bmFtZXNfdG9fY29sdW1uKCkgJT4lDQogIHJlbmFtZShNb3RpdmF0aW9uID0gcm93bmFtZSkgJT4lDQogIG1lbHQoaWQudmFycyA9ICJNb3RpdmF0aW9uIiwgdmFyaWFibGUubmFtZSA9ICJQcm9maWxlIiwgdmFsdWUubmFtZSA9ICJNZWFuIikgJT4lDQogIG11dGF0ZShNZWFuID0gcm91bmQoTWVhbiwgMikpDQoNCiMgUGxvdA0KbWVhbnMgJT4lDQogIGdncGxvdChhZXMoTW90aXZhdGlvbiwgTWVhbiwgZ3JvdXAgPSBQcm9maWxlLCBjb2xvciA9IFByb2ZpbGUpKSArDQogIGdlb21fbGluZSgpICsNCiAgZ2VvbV9wb2ludCgpICsNCiAgc2NhbGVfeF9kaXNjcmV0ZShsaW1pdHMgPSBjKCJhbW90aXZhdGlvbiIsICJleHRlcm5hbCIsICJpbnRyb2plY3RlZCIsICJpZGVudGlmaWVkIiwgImludGVncmF0ZWQiLCAiaW50cmluc2ljIikpICsNCiAgbGFicyh4ID0gTlVMTCwgeSA9ICJTdGFuZGFyZGl6ZWQgbWVhbiB3ZWlnaHRlZCBmYWN0b3Igc2NvcmVzIikgKw0KICB0aGVtZV9idyhiYXNlX3NpemUgPSAxNCkgKw0KICB0aGVtZShheGlzLnRleHQueCA9IGVsZW1lbnRfdGV4dChhbmdsZSA9IDQ1LCBoanVzdCA9IDEpLCBsZWdlbmQucG9zaXRpb24gPSAidG9wIikNCmBgYA0KDQojIyMjIDMgcHJvZmlsZXMNCg0KYGBge3IgY2xhc3Muc291cmNlID0gJ2ZvbGQtaGlkZSd9DQptMyA8LSBNY2x1c3QoY2x1cywgbW9kZWxOYW1lcyA9ICJWRVYiLCBHID0gMywgeCA9IEJJQykNCnN1bW1hcnkobTMpDQoNCiMgRXh0cmFjdCBtZWFuIHdlaWdodGVkIHN1bSBzY29yZXMNCmxpYnJhcnkocmVzaGFwZTIpDQptZWFucyA8LSBkYXRhLmZyYW1lKG0zJHBhcmFtZXRlcnMkbWVhbiwNCiAgICAgICAgICAgICAgICAgICAgc3RyaW5nc0FzRmFjdG9ycyA9IEYpICU+JQ0KICByb3duYW1lc190b19jb2x1bW4oKSAlPiUNCiAgcmVuYW1lKE1vdGl2YXRpb24gPSByb3duYW1lKSAlPiUNCiAgbWVsdChpZC52YXJzID0gIk1vdGl2YXRpb24iLCB2YXJpYWJsZS5uYW1lID0gIlByb2ZpbGUiLCB2YWx1ZS5uYW1lID0gIk1lYW4iKSAlPiUNCiAgbXV0YXRlKE1lYW4gPSByb3VuZChNZWFuLCAyKSkNCg0KIyBQbG90DQptZWFucyAlPiUNCiAgZ2dwbG90KGFlcyhNb3RpdmF0aW9uLCBNZWFuLCBncm91cCA9IFByb2ZpbGUsIGNvbG9yID0gUHJvZmlsZSkpICsNCiAgZ2VvbV9saW5lKCkgKw0KICBnZW9tX3BvaW50KCkgKw0KICBzY2FsZV94X2Rpc2NyZXRlKGxpbWl0cyA9IGMoImFtb3RpdmF0aW9uIiwgImV4dGVybmFsIiwgImludHJvamVjdGVkIiwgImlkZW50aWZpZWQiLCAiaW50ZWdyYXRlZCIsICJpbnRyaW5zaWMiKSkgKw0KICBsYWJzKHggPSBOVUxMLCB5ID0gIlN0YW5kYXJkaXplZCBtZWFuIHdlaWdodGVkIGZhY3RvciBzY29yZXMiKSArDQogIHRoZW1lX2J3KGJhc2Vfc2l6ZSA9IDE0KSArDQogIHRoZW1lKGF4aXMudGV4dC54ID0gZWxlbWVudF90ZXh0KGFuZ2xlID0gNDUsIGhqdXN0ID0gMSksIGxlZ2VuZC5wb3NpdGlvbiA9ICJ0b3AiKQ0KYGBgDQoNCiMjIyMgNCBwcm9maWxlcw0KDQpgYGB7ciBjbGFzcy5zb3VyY2UgPSAnZm9sZC1oaWRlJ30NCm00IDwtIE1jbHVzdChjbHVzLCBtb2RlbE5hbWVzID0gIlZFViIsIEcgPSA0LCB4ID0gQklDKQ0Kc3VtbWFyeShtNCkNCg0KIyBFeHRyYWN0IG1lYW4gd2VpZ2h0ZWQgc3VtIHNjb3Jlcw0KbGlicmFyeShyZXNoYXBlMikNCm1lYW5zIDwtIGRhdGEuZnJhbWUobTQkcGFyYW1ldGVycyRtZWFuLA0KICAgICAgICAgICAgICAgICAgICBzdHJpbmdzQXNGYWN0b3JzID0gRikgJT4lDQogIHJvd25hbWVzX3RvX2NvbHVtbigpICU+JQ0KICByZW5hbWUoTW90aXZhdGlvbiA9IHJvd25hbWUpICU+JQ0KICBtZWx0KGlkLnZhcnMgPSAiTW90aXZhdGlvbiIsIHZhcmlhYmxlLm5hbWUgPSAiUHJvZmlsZSIsIHZhbHVlLm5hbWUgPSAiTWVhbiIpICU+JQ0KICBtdXRhdGUoTWVhbiA9IHJvdW5kKE1lYW4sIDIpKQ0KDQojIFBsb3QNCm1lYW5zICU+JQ0KICBnZ3Bsb3QoYWVzKE1vdGl2YXRpb24sIE1lYW4sIGdyb3VwID0gUHJvZmlsZSwgY29sb3IgPSBQcm9maWxlKSkgKw0KICBnZW9tX2xpbmUoKSArDQogIGdlb21fcG9pbnQoKSArDQogIHNjYWxlX3hfZGlzY3JldGUobGltaXRzID0gYygiYW1vdGl2YXRpb24iLCAiZXh0ZXJuYWwiLCAiaW50cm9qZWN0ZWQiLCAiaWRlbnRpZmllZCIsICJpbnRlZ3JhdGVkIiwgImludHJpbnNpYyIpKSArDQogIGxhYnMoeCA9IE5VTEwsIHkgPSAiU3RhbmRhcmRpemVkIG1lYW4gd2VpZ2h0ZWQgZmFjdG9yIHNjb3JlcyIpICsNCiAgdGhlbWVfYncoYmFzZV9zaXplID0gMTQpICsNCiAgdGhlbWUoYXhpcy50ZXh0LnggPSBlbGVtZW50X3RleHQoYW5nbGUgPSA0NSwgaGp1c3QgPSAxKSwgbGVnZW5kLnBvc2l0aW9uID0gInRvcCIpDQpgYGANCg0KIyMjIyA1IHByb2ZpbGVzDQoNCmBgYHtyIGNsYXNzLnNvdXJjZSA9ICdmb2xkLWhpZGUnfQ0KbTUgPC0gTWNsdXN0KGNsdXMsIG1vZGVsTmFtZXMgPSAiVkVWIiwgRyA9IDUsIHggPSBCSUMpDQpzdW1tYXJ5KG01KQ0KDQojIEV4dHJhY3QgbWVhbiB3ZWlnaHRlZCBzdW0gc2NvcmVzDQpsaWJyYXJ5KHJlc2hhcGUyKQ0KbWVhbnMgPC0gZGF0YS5mcmFtZShtNSRwYXJhbWV0ZXJzJG1lYW4sDQogICAgICAgICAgICAgICAgICAgIHN0cmluZ3NBc0ZhY3RvcnMgPSBGKSAlPiUNCiAgcm93bmFtZXNfdG9fY29sdW1uKCkgJT4lDQogIHJlbmFtZShNb3RpdmF0aW9uID0gcm93bmFtZSkgJT4lDQogIG1lbHQoaWQudmFycyA9ICJNb3RpdmF0aW9uIiwgdmFyaWFibGUubmFtZSA9ICJQcm9maWxlIiwgdmFsdWUubmFtZSA9ICJNZWFuIikgJT4lDQogIG11dGF0ZShNZWFuID0gcm91bmQoTWVhbiwgMikpDQoNCiMgUGxvdA0KbWVhbnMgJT4lDQogIGdncGxvdChhZXMoTW90aXZhdGlvbiwgTWVhbiwgZ3JvdXAgPSBQcm9maWxlLCBjb2xvciA9IFByb2ZpbGUpKSArDQogIGdlb21fbGluZSgpICsNCiAgZ2VvbV9wb2ludCgpICsNCiAgc2NhbGVfeF9kaXNjcmV0ZShsaW1pdHMgPSBjKCJhbW90aXZhdGlvbiIsICJleHRlcm5hbCIsICJpbnRyb2plY3RlZCIsICJpZGVudGlmaWVkIiwgImludGVncmF0ZWQiLCAiaW50cmluc2ljIikpICsNCiAgbGFicyh4ID0gTlVMTCwgeSA9ICJTdGFuZGFyZGl6ZWQgbWVhbiB3ZWlnaHRlZCBmYWN0b3Igc2NvcmVzIikgKw0KICB0aGVtZV9idyhiYXNlX3NpemUgPSAxNCkgKw0KICB0aGVtZShheGlzLnRleHQueCA9IGVsZW1lbnRfdGV4dChhbmdsZSA9IDQ1LCBoanVzdCA9IDEpLCBsZWdlbmQucG9zaXRpb24gPSAidG9wIikNCmBgYA0KDQojIyMjIDYgcHJvZmlsZXMNCg0KYGBge3IgY2xhc3Muc291cmNlID0gJ2ZvbGQtaGlkZSd9DQptNiA8LSBNY2x1c3QoY2x1cywgbW9kZWxOYW1lcyA9ICJWRVYiLCBHID0gNiwgeCA9IEJJQykNCnN1bW1hcnkobTYpDQoNCiMgRXh0cmFjdCBtZWFuIHdlaWdodGVkIHN1bSBzY29yZXMNCmxpYnJhcnkocmVzaGFwZTIpDQptZWFucyA8LSBkYXRhLmZyYW1lKG02JHBhcmFtZXRlcnMkbWVhbiwNCiAgICAgICAgICAgICAgICAgICAgc3RyaW5nc0FzRmFjdG9ycyA9IEYpICU+JQ0KICByb3duYW1lc190b19jb2x1bW4oKSAlPiUNCiAgcmVuYW1lKE1vdGl2YXRpb24gPSByb3duYW1lKSAlPiUNCiAgbWVsdChpZC52YXJzID0gIk1vdGl2YXRpb24iLCB2YXJpYWJsZS5uYW1lID0gIlByb2ZpbGUiLCB2YWx1ZS5uYW1lID0gIk1lYW4iKSAlPiUNCiAgbXV0YXRlKE1lYW4gPSByb3VuZChNZWFuLCAyKSkNCg0KIyBQbG90DQptZWFucyAlPiUNCiAgZ2dwbG90KGFlcyhNb3RpdmF0aW9uLCBNZWFuLCBncm91cCA9IFByb2ZpbGUsIGNvbG9yID0gUHJvZmlsZSkpICsNCiAgZ2VvbV9saW5lKCkgKw0KICBnZW9tX3BvaW50KCkgKw0KICBzY2FsZV94X2Rpc2NyZXRlKGxpbWl0cyA9IGMoImFtb3RpdmF0aW9uIiwgImV4dGVybmFsIiwgImludHJvamVjdGVkIiwgImlkZW50aWZpZWQiLCAiaW50ZWdyYXRlZCIsICJpbnRyaW5zaWMiKSkgKw0KICBsYWJzKHggPSBOVUxMLCB5ID0gIlN0YW5kYXJkaXplZCBtZWFuIHdlaWdodGVkIGZhY3RvciBzY29yZXMiKSArDQogIHRoZW1lX2J3KGJhc2Vfc2l6ZSA9IDE0KSArDQogIHRoZW1lKGF4aXMudGV4dC54ID0gZWxlbWVudF90ZXh0KGFuZ2xlID0gNDUsIGhqdXN0ID0gMSksIGxlZ2VuZC5wb3NpdGlvbiA9ICJ0b3AiKQ0KYGBgDQoNCiMjIyB7LX0NCg0KPGJyPg0KDQotLS0tDQoNCiMjIDYuIFByb2JhYmlsaXRpZXMgDQoNCiMjIyB7LnRhYnNldCAudGFic2V0LWZhZGV9DQoNCk5vdyBsZXQncyBjaGVjayB0aGUgY2xhc3MgbWVtYmVyc2hpcCBwcm9iYWJpbGl0aWVzIChwb3N0ZXJpb3IgcHJvYmFiaWxpdGllcykgb2Ygb3VyIG1vZGVscy4NCg0KTm90ZSB0byBzZWxmOiBhbHNvIGNoZWNrICplbnRyb3B5Ki4gDQoNCiMjIyMgMiBwcm9maWxlcw0KDQpgYGB7cn0NCnByb2IgPC0gYXMuZGF0YS5mcmFtZShtMiR6KSAjIHR1cm4gcHJvYmFiaWxpdGllcyBpbnRvIGRhdGFmcmFtZQ0KcHJvYiRjbGFzcyA8LSBtMiRjbGFzc2lmaWNhdGlvbiAjIGdldCBhc3NpZ25lZCBwcm9maWxlcw0KDQpjMSA8LSBwcm9iICU+JSAjIGNhbGN1bGF0ZSBhdmVyYWdlIHBvc3RlcmlvciBwcm9iYWJpbGl0aWVzDQogIGZpbHRlcihjbGFzcyA9PSAxKQ0KYzIgPC0gcHJvYiAlPiUNCiAgZmlsdGVyKGNsYXNzID09IDIpDQoNCnBwIDwtIGFzLmRhdGEuZnJhbWUocmJpbmQoY29sTWVhbnMoYzEpLCBjb2xNZWFucyhjMikpKQ0KcHJpbnQocHApDQpgYGANCg0KIyMjIyAzIHByb2ZpbGVzDQoNCmBgYHtyfQ0KcHJvYiA8LSBhcy5kYXRhLmZyYW1lKG0zJHopICMgdHVybiBwcm9iYWJpbGl0aWVzIGludG8gZGF0YWZyYW1lDQpwcm9iJGNsYXNzIDwtIG0zJGNsYXNzaWZpY2F0aW9uICMgZ2V0IGFzc2lnbmVkIHByb2ZpbGVzDQoNCmMxIDwtIHByb2IgJT4lICMgY2FsY3VsYXRlIGF2ZXJhZ2UgcG9zdGVyaW9yIHByb2JhYmlsaXRpZXMNCiAgZmlsdGVyKGNsYXNzID09IDEpDQpjMiA8LSBwcm9iICU+JQ0KICBmaWx0ZXIoY2xhc3MgPT0gMikNCmMzIDwtIHByb2IgJT4lDQogIGZpbHRlcihjbGFzcyA9PSAzKQ0KDQpwcCA8LSBhcy5kYXRhLmZyYW1lKHJiaW5kKGNvbE1lYW5zKGMxKSwgY29sTWVhbnMoYzIpLCBjb2xNZWFucyhjMykpKQ0KcHJpbnQocHApDQpgYGANCg0KIyMjIyA0IHByb2ZpbGVzDQoNCmBgYHtyfQ0KcHJvYiA8LSBhcy5kYXRhLmZyYW1lKG00JHopICMgdHVybiBwcm9iYWJpbGl0aWVzIGludG8gZGF0YWZyYW1lDQpwcm9iJGNsYXNzIDwtIG00JGNsYXNzaWZpY2F0aW9uICMgZ2V0IGFzc2lnbmVkIHByb2ZpbGVzDQoNCmMxIDwtIHByb2IgJT4lICMgY2FsY3VsYXRlIGF2ZXJhZ2UgcG9zdGVyaW9yIHByb2JhYmlsaXRpZXMNCiAgZmlsdGVyKGNsYXNzID09IDEpDQpjMiA8LSBwcm9iICU+JQ0KICBmaWx0ZXIoY2xhc3MgPT0gMikNCmMzIDwtIHByb2IgJT4lDQogIGZpbHRlcihjbGFzcyA9PSAzKQ0KYzQgPC0gcHJvYiAlPiUNCiAgZmlsdGVyKGNsYXNzID09IDQpDQoNCnBwIDwtIGFzLmRhdGEuZnJhbWUocmJpbmQoY29sTWVhbnMoYzEpLCBjb2xNZWFucyhjMiksIGNvbE1lYW5zKGMzKSwgY29sTWVhbnMoYzQpKSkNCnByaW50KHBwKQ0KYGBgDQoNCiMjIyMgNSBwcm9maWxlcw0KDQpgYGB7cn0NCnByb2IgPC0gYXMuZGF0YS5mcmFtZShtNSR6KSAjIHR1cm4gcHJvYmFiaWxpdGllcyBpbnRvIGRhdGFmcmFtZQ0KcHJvYiRjbGFzcyA8LSBtNSRjbGFzc2lmaWNhdGlvbiAjIGdldCBhc3NpZ25lZCBwcm9maWxlcw0KDQpjMSA8LSBwcm9iICU+JSAjIGNhbGN1bGF0ZSBhdmVyYWdlIHBvc3RlcmlvciBwcm9iYWJpbGl0aWVzDQogIGZpbHRlcihjbGFzcyA9PSAxKQ0KYzIgPC0gcHJvYiAlPiUNCiAgZmlsdGVyKGNsYXNzID09IDIpDQpjMyA8LSBwcm9iICU+JQ0KICBmaWx0ZXIoY2xhc3MgPT0gMykNCmM0IDwtIHByb2IgJT4lDQogIGZpbHRlcihjbGFzcyA9PSA0KQ0KYzUgPC0gcHJvYiAlPiUNCiAgZmlsdGVyKGNsYXNzID09IDUpDQoNCnBwIDwtIGFzLmRhdGEuZnJhbWUocmJpbmQoY29sTWVhbnMoYzEpLCBjb2xNZWFucyhjMiksIGNvbE1lYW5zKGMzKSwgY29sTWVhbnMoYzQpLCBjb2xNZWFucyhjNSkpKQ0KcHJpbnQocHApDQpgYGANCg0KIyMjIyA2IHByb2ZpbGVzDQoNCmBgYHtyfQ0KcHJvYiA8LSBhcy5kYXRhLmZyYW1lKG02JHopICMgdHVybiBwcm9iYWJpbGl0aWVzIGludG8gZGF0YWZyYW1lDQpwcm9iJGNsYXNzIDwtIG02JGNsYXNzaWZpY2F0aW9uICMgZ2V0IGFzc2lnbmVkIHByb2ZpbGVzDQoNCmMxIDwtIHByb2IgJT4lICMgY2FsY3VsYXRlIGF2ZXJhZ2UgcG9zdGVyaW9yIHByb2JhYmlsaXRpZXMNCiAgZmlsdGVyKGNsYXNzID09IDEpDQpjMiA8LSBwcm9iICU+JQ0KICBmaWx0ZXIoY2xhc3MgPT0gMikNCmMzIDwtIHByb2IgJT4lDQogIGZpbHRlcihjbGFzcyA9PSAzKQ0KYzQgPC0gcHJvYiAlPiUNCiAgZmlsdGVyKGNsYXNzID09IDQpDQpjNSA8LSBwcm9iICU+JQ0KICBmaWx0ZXIoY2xhc3MgPT0gNSkNCmM2IDwtIHByb2IgJT4lDQogIGZpbHRlcihjbGFzcyA9PSA2KQ0KDQpwcCA8LSBhcy5kYXRhLmZyYW1lKHJiaW5kKGNvbE1lYW5zKGMxKSwgY29sTWVhbnMoYzIpLCBjb2xNZWFucyhjMyksIGNvbE1lYW5zKGM0KSwgY29sTWVhbnMoYzUpLCBjb2xNZWFucyhjNikpKQ0KcHJpbnQocHApDQpgYGANCg0KIyMjIHstfQ0KDQo8YnI+DQoNCi0tLS0NCg0KIyMgNy4gVmFsaWRhdGlvbg0KDQpCYXNlZCBvbiBzdGF0aXN0aWNhbCBmaXQgKEJJQywgSUNMKSwgbWVtYmVyc2hpcCBwcm9iYWJpbGl0aWVzLCBhbmQgdGhlb3JldGljYWwgYXBwcm9wcmlhdGVuZXNzLCB3ZSBjaG9zZSB0aGUgNS1jbGFzcyBzb2x1dGlvbi4gVG8gZW5zdXJlIHRoYXQgaW50ZXJwcmV0YXRpb24gaXMgdGhlb3JldGljYWxseSBtZWFuaW5nZnVsIGFuZCBhcHByb3ByaWF0ZSwgd2UgaGF2ZSByZS1vcmRlbmVkIHRoZSBwcm9maWxlcyB0byBtYXRjaCB0aGUgbW90aXZhdGlvbmFsIGNvbnRpbnV1bSBwcm9wb3NlZCBmcm9tIFNEVC4gVGhlIHNpeCBwcm9maWxlcyBhcmUgbGFiZWxsZWQgYXM6DQoNCjEuICoqU3Ryb25nbHkgYW1vdGl2YXRlZCoqOiBwcmltYXJpbHkgYW1vdGl2YXRpb24gd2l0aCBzb21lIChyZWFkOiBhdmVyYWdlIGxldmVscyBvZikgb3RoZXIgZm9ybXMgb2YgbW90aXZhdGlvbmFsIHJlZ3VsYXRpb24uICANCjIuICoqQW1vdGl2YXRlZCoqOiBwcmltYXJpbHkgYW1vdGl2YXRpb24sIGJ1dCBhbHNvIGhpZ2ggbGV2ZWxzIG9mIGV4dGVybmFsIGFuZCBpbnRyb2plY3RlZCByZWd1bGF0aW9uLg0KMy4gKipMb3cgaW4gbW90aXZhdGlvbioqOiBsb3cgbGV2ZWxzIG9mIGFsbCB0eXBlcyBvZiBiZWhhdmlvcmFsIHJlZ3VsYXRpb24uDQo0LiAqKk1vZGVyYXRlIGluIG1vdGl2YXRpb24qKjogYWJvdXQgYXZlcmFnZSBvbiBhbGwgZm9ybXMgb2YgYmVoYXZpb3JhbCByZWd1bGF0aW9uLg0KNS4gKipIaWdoIGluIG1vdGl2YXRpb24qKjogaGlnaCBpbiBhdXRvbm9tb3VzIGZvcm1zIG9mIG1vdGl2YXRpb24gKGkuZS4gaW50cmluc2ljLCBpbnRlZ3JhdGVkLCBpZGVudGlmaWVkKSwgYW5kIGFsc28gaW4gY29udHJvbGxlZCBmb3JtcyAoaS5lLiBleHRlcm5hbCwgaW50cm9qZWN0ZWQpLCBidXQgbG93IGluIGFtb3RpdmF0aW9uLiANCg0KKipOb3RlKiogdGhhdCB3ZSBjb25jbHVkZWQgZWFybGllciB0aGF0LCBvbiBhdmVyYWdlLCBvdXIgc2FtcGxlIHNjb3JlZCByZWxhdGl2ZWx5IGhpZ2ggb24gYWxsIGZvcm1zIG9mIGJlaGF2aW9yYWwgcmVndWxhdGlvbi4gVGhlcmVmb3JlLCBhIHByb2ZpbGUgc3VjaCBhcyAnQW1vdGl2YXRlZCcgbXVzdCBiZSB1bmRlcnN0b29kIGluIHRoZSBjb250ZXh0IG9mIHRoZXNlIGF2ZXJhZ2Ugc2NvcmVzLg0KDQotLS0tDQoNCkxldCdzIGRlc2NyaWJlIG91ciBmaW5hbCBtb2RlbCBtb3JlIG5lYXRseSwgYW5kIG1ha2UgaXQgaW50ZXJhY3RpdmUuIA0KDQpgYGB7cn0NCiMgVHJpbW1pbmcgdmFsdWVzIGV4Y2VlZGluZyArMSBTRA0KbWVhbnMgPC0gZGF0YS5mcmFtZShtNSRwYXJhbWV0ZXJzJG1lYW4sDQogICAgICAgICAgICAgICAgICAgIHN0cmluZ3NBc0ZhY3RvcnMgPSBGKSAlPiUNCiAgcm93bmFtZXNfdG9fY29sdW1uKCkgJT4lDQogIHJlbmFtZShNb3RpdmF0aW9uID0gcm93bmFtZSkgJT4lDQogIG1lbHQoaWQudmFycyA9ICJNb3RpdmF0aW9uIiwgdmFyaWFibGUubmFtZSA9ICJQcm9maWxlIiwgdmFsdWUubmFtZSA9ICJNZWFuIikgJT4lDQogIG11dGF0ZShNZWFuID0gcm91bmQoTWVhbiwgMiksDQogICAgICAgICBNZWFuID0gaWZlbHNlKE1lYW4gPiAxLCAxLCBNZWFuKSkNCg0KIyBDaGFuZ2UgbGFiZWxzDQptZWFucyRQcm9maWxlIDwtIHBseXI6OnJldmFsdWUobWVhbnMkUHJvZmlsZSwgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYygiWDEiPSJNb2RlcmF0ZSBpbiBtb3RpdmF0aW9uIiwgIlgyIiA9ICJMb3cgaW4gbW90aXZhdGlvbiIsICJYMyIgPSAiU3Ryb25nbHkgYW1vdGl2YXRlZCIsICJYNCIgPSAiQW1vdGl2YXRlZCIsICJYNSIgPSAiSGlnaCBpbiBtb3RpdmF0aW9uIikpDQptZWFucyRNb3RpdmF0aW9uIDwtIHBseXI6OnJldmFsdWUobWVhbnMkTW90aXZhdGlvbiwgYygiYW1vdGl2YXRpb24iID0gIkFtb3RpdmF0aW9uIiwgImV4dGVybmFsIiA9ICJFeHRlcm5hbCIsICJpbnRyb2plY3RlZCIgPSAiSW50cm9qZWN0ZWQiLCAiaWRlbnRpZmllZCIgPSAiSWRlbnRpZmllZCIsICJpbnRlZ3JhdGVkIiA9ICJJbnRlZ3JhdGVkIiwiaW50cmluc2ljIiA9ICJJbnRyaW5zaWMiKSkNCiMgQ2hhbmdlIG9yZGVyDQptZWFucyRQcm9maWxlIDwtIGZhY3RvcihtZWFucyRQcm9maWxlLCAjIFJlbGV2ZWwgZ3JvdXAgZmFjdG9yDQpsZXZlbHMgPSBjKCJTdHJvbmdseSBhbW90aXZhdGVkIiwgIkFtb3RpdmF0ZWQiLCAiTG93IGluIG1vdGl2YXRpb24iLCAiTW9kZXJhdGUgaW4gbW90aXZhdGlvbiIsICJIaWdoIGluIG1vdGl2YXRpb24iICkpDQoNCg0KcCA8LSBtZWFucyAlPiUNCiAgZ2dwbG90KGFlcyhNb3RpdmF0aW9uLCBNZWFuLCBncm91cCA9IFByb2ZpbGUsIGNvbG9yID0gUHJvZmlsZSkpICsNCiAgZ2VvbV9wb2ludChzaXplID0gMikgKyANCiAgZ2VvbV9saW5lKHNpemUgPSAxKSArDQogIHNjYWxlX3hfZGlzY3JldGUobGltaXRzID0gYygiQW1vdGl2YXRpb24iLCAiRXh0ZXJuYWwiLCAiSW50cm9qZWN0ZWQiLCAiSWRlbnRpZmllZCIsICJJbnRlZ3JhdGVkIiwgIkludHJpbnNpYyIpKSArDQogIGxhYnMoeCA9IE5VTEwsIHkgPSAiU3RhbmRhcmRpemVkIG1lYW4gd2VpZ2h0ZWQgZmFjdG9yIHNjb3JlcyIpICsNCiBzY2FsZV9jb2xvdXJfbWFudWFsKHZhbHVlcz1jKCIjMDAwMDAwIiwgIiNFNjlGMDAiLCAiIzU2QjRFOSIsICIjMDA5RTczIiwgIiNGMEU0NDIiKSkgKyB0aGVtZV9idyhiYXNlX2ZhbWlseT0ic2VyaWYiLCBiYXNlX3NpemUgPSAxNikgKyBnZW9tX2hsaW5lKHlpbnRlcmNlcHQgPSAwLCBsaW5ldHlwZT0iZGFzaGVkIikgKyB0aGVtZShheGlzLnRleHQueCA9IGVsZW1lbnRfdGV4dChmYW1pbHk9InNlcmlmIiwgYW5nbGUgPSA0NSwgaGp1c3QgPSAxKSwgbGVnZW5kLnBvc2l0aW9uID0gInJpZ2h0IiwgbGVnZW5kLnRpdGxlPWVsZW1lbnRfYmxhbmsoKSkNCg0KI3BuZygocGFzdGUoImltYWdlcyIsICIvIiwgImxwYS5wbmciLCBzZXAgPSAiIikpKSAjIHNhdmUgdGhlIHBsb3QgYXMgLnBuZw0KYGBgDQoNCkFuZCBsZXQncyB0dXJuIHRoaXMgc3RhdGljIHBsb3QgaW50byBhbiAqaW50ZXJhY3RpdmUqIG9uZS4gSGVyZSwgaXQgaXMgbm90IHJlYWxseSBuZWNlc3NhcnksIGJ1dCBpbiBhIExQQSB3aXRoIG1vcmUgaW5kaWNpYXRvcnMgaXQgbWF5IGJlIHRvdWdoIHRvIHJlYWQgdGhlIHZhbHVlcyBvZiBlYWNoIGluZGljYXRvci4gV2Ugd2lsbCB1c2UgdGhlICpwbG90bHkqLXBhY2thZ2UuDQoNCmBgYHtyLCB3YXJuaW5nPUZBTFNFLCBtZXNzYWdlPUZBTFNFfQ0KbGlicmFyeShwbG90bHkpDQoNCmdncGxvdGx5KHAsIHRvb2x0aXAgPSBjKCJNb3RpdmF0aW9uIiwgIk1lYW4iKSkgJT4lDQogIGxheW91dChsZWdlbmQgPSBsaXN0KG9yaWVudGF0aW9uID0gImgiLCB5ID0gNCkpDQpgYGANCg0KDQoqKlRvLWRvKio6IGV4cGxvcmUgYXNzdW1wdGlvbnMgYWJvdXQgdmFyaWFuY2UsIGJ5IGNvbXBhcmluZyB0aGUgVkVWLDUgbW9kZWwgd2l0aCBtb2RlbHMgd2l0aCBjb3JyZWxhdGVkIGluZGljYXRvcnMsIGFuZCBlcXVhbCB2YXJpYW5jZXMgYWNyb3NzIHRpbWUgKHNlZSBbdGhpcyBwYXBlcl0oaHR0cHM6Ly93d3cubmNiaS5ubG0ubmloLmdvdi9wbWMvYXJ0aWNsZXMvUE1DNTA5NjczNi8pKS4NCg0KLS0tLQ0KDQojIFN0ZXAgMg0KDQpJbiB0aGUgc2Vjb25kIHN0ZXAgd2UgY29uZHVjdGVkIExQQSBzZXBhcmF0ZWx5IGZvciBlYWNoIHNldCBvZiBsYXRlbnQgcHJvZmlsZSBpbmRpY2F0b3JzIChpLmUuLCBmb3IgZWFjaCB0aW1lIHBvaW50KSwgZml4aW5nIHRoZSBtZWFzdXJlbWVudCBwYXJhbWV0ZXJzIHNvIHRoYXQgdGhlIHByb2ZpbGVzIGFyZSB0aGUgc2FtZSBhcyBpbiBzdGVwIDEsIGFsbG93aW5nIHVzIHRvIG9idGFpbiBwcm9maWxlIHZhcmlhYmxlcyBhbmQgY2xhc3NpZmljYXRpb24gZXJyb3JzIGZvciBlYWNoIHRpbWUgcG9pbnQuIA0KDQoNCg0KDQoNCg0KDQoNCg==</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("lpta.Rmd");
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

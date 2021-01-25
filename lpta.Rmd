@@ -1,0 +1,554 @@
+---
+title: "Latent Profile Transition Analysis"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: false
+    toc_depth: 2
+    code_folding: show
+    code_download: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+```
+
+<br>
+
+## Exploring
+
+*Last edited: January 25, 2021*
+
+<br>
+
+In the following, we will explore motivational profiles in the context of longitudinal data, using SDT as a theoretical framework. We will explore movement between motivational profiles over time.
+
+<br>
+
+## Approach
+
+First, we obtain weighted factor-scores for each SMS-subscale with CFA using MLE, as input for our subsequent LPA. Then, we use a three-step approach (see [this article](https://www.tandfonline.com/doi/pdf/10.1080/10705511.2014.915181); or the paper by [Emm-Collison and colleagues](https://www.sciencedirect.com/science/article/pii/S1469029219303851) who used the same procedure).
+
+
+
+Then, we use a three-step approach:
+
+
+3. Estimate the movement between motivational profiles accros time points, keeping the latent profiles at each time point fixed and accounting for measurement error in profile assignment. 
+
+---
+
+# Step 1
+
+Through step 1 we identified the motivational profiles for each timepoint, using data from all 3 time points (and thus assuming the observations of each time point to be independent from others).
+
+## 1. Data
+
+Let's get our 'cleaned' SMS-data, for each wave, and then bind them together (and thus assume them to be independent observations)
+
+```{r, warning=FALSE, message=FALSE}
+library(sjlabelled)
+library(dplyr)
+library(tidyverse)
+library(careless)
+library(psych)
+
+load("data_abs_public_v2.RData") # load data
+data_abs_public <- unlabel(data_abs_public, verbose=F)
+
+# subset sms data in each wave
+
+sms_w1 <- data_abs_public %>% select(W1_M1_1, W1_M1_2, W1_M1_3, W1_M1_4, W1_M1_5, W1_M1_6, W1_M1_7, W1_M1_8, W1_M2_1, W1_M2_2, W1_M2_3, W1_M2_4, W1_M2_5, W1_M2_6, W1_M2_7, W1_M2_8, W1_M3_1, W1_M3_2, W1_M3_3, W1_M3_4, W1_M3_5, W1_M3_6, W1_M3_7, W1_M3_8)
+sms_w2 <- data_abs_public %>% select(W2_M1_1, W2_M1_2, W2_M1_3, W2_M1_4, W2_M1_5, W2_M1_6, W2_M1_7, W2_M1_8, W2_M2_1, W2_M2_2, W2_M2_3, W2_M2_4, W2_M2_5, W2_M2_6, W2_M2_7, W2_M2_8, W2_M3_1, W2_M3_2, W2_M3_3, W2_M3_4, W2_M3_5, W2_M3_6, W2_M3_7, W2_M3_8) 
+sms_w3 <- data_abs_public %>% select(W3_M1_1, W3_M1_2, W3_M1_3, W3_M1_4, W3_M1_5, W3_M1_6, W3_M1_7, W3_M1_8, W3_M2_1, W3_M2_2, W3_M2_3, W3_M2_4, W3_M2_5, W3_M2_6, W3_M2_7, W3_M2_8, W3_M3_1, W3_M3_2, W3_M3_3, W3_M3_4, W3_M3_5, W3_M3_6, W3_M3_7, W3_M3_8)
+
+# make a 'string' variable 
+sms_w1 <- sms_w1 %>%
+  mutate(string_w1 = longstring(.)) %>%
+  mutate(md_w1 = outlier(., plot = FALSE))
+sms_w2 <- sms_w2 %>%
+  mutate(string_w2 = longstring(.)) %>%
+  mutate(md_w2 = outlier(., plot = FALSE)) 
+sms_w3 <- sms_w3 %>%
+  mutate(string_w3 = longstring(.)) %>%
+  mutate(md_w3 = outlier(., plot = FALSE)) 
+
+# cap string responding and use MD
+cutoff_w1 <- (qchisq(p = 1 - .001, df = ncol(sms_w1)))
+sms_w1 <- sms_w1 %>%
+  filter(string_w1 <= 10,
+         md_w1 < cutoff_w1) %>%
+  select(-string_w1, -md_w1)
+
+cutoff_w2 <- (qchisq(p = 1 - .001, df = ncol(sms_w2)))
+sms_w2 <- sms_w2 %>%
+  filter(string_w2 <= 10,
+         md_w2 < cutoff_w2) %>%
+  select(-string_w2, -md_w2)
+
+cutoff_w3 <- (qchisq(p = 1 - .001, df = ncol(sms_w3)))
+sms_w3 <- sms_w3 %>%
+  filter(string_w3 <= 10,
+         md_w3 < cutoff_w3) %>%
+  select(-string_w3, -md_w3)
+
+# bind together (hence assuming independent observations)
+names(sms_w1) <- names(sms_w2) <- names(sms_w3) <- c("M1_1", "M1_2", "M1_3", "M1_4", "M1_5", "M1_6", "M1_7", "M1_8", "M2_1", "M2_2", "M2_3", "M2_4", "M2_5", "M2_6", "M2_7", "M2_8", "M3_1", "M3_2", "M3_3", "M3_4", "M3_5", "M3_6", "M3_7", "M3_8")
+sms <- rbind(sms_w1, sms_w2, sms_w3)
+sms$id <- 1:nrow(sms) # add identifier
+```
+
+<br>
+
+----
+
+## 2. CFA
+
+Tell Lavaan the confirmatory structure.
+
+```{r}
+library(lavaan)
+
+motivation_model <- "
+amotivation =~ M1_5 + M2_4 + M3_1 + M3_6
+external    =~ M1_4 + M2_3 + M3_3 + M3_8
+introjected =~ M1_7 + M2_2 + M2_8 + M3_7
+identified  =~ M1_3 + M1_8 + M2_7 + M3_4
+integrated  =~ M1_2 + M2_1 + M2_5 + M3_5
+intrinsic   =~ M1_1 + M1_6 + M2_6 + M3_2
+id ~~ id"
+
+```
+
+Now let's have a look at different fit indices.
+ 
+```{r}
+fit <- cfa(motivation_model, data=sms,
+           std.lv=FALSE) # this may be left out as well
+print(fitMeasures(fit, c("chisq", "df", "pvalue", "cfi", "rmsea", "srmr"), output = "text"), add.h0 = TRUE)
+```
+
+And get the factor scores (we fixed the loading of the first variable of each latent variable to 1).
+We calculate weighted factor scores for each motivational subscale by multiplying the factor loading of each item to the scaled score for each item before summing.
+
+```{r}
+loading <- parameterEstimates(fit) # get loadings
+loading <- loading$est[1:24] # subset
+
+# weighted sum (factor) scores
+amotivation <- rowMeans(cbind((sms$M1_5*loading[1]), (sms$M2_4*loading[2]), (sms$M3_1*loading[3]), (sms$M3_6*loading[4])))
+external <- rowMeans(cbind((sms$M1_4*loading[5]), (sms$M2_3*loading[6]), (sms$M3_3*loading[7]),   (sms$M3_8*loading[8])))
+introjected <- rowMeans(cbind((sms$M1_7*loading[9]), (sms$M2_2*loading[10]), (sms$M2_8*loading[11]), (sms$M3_7*loading[12])))
+identified <- rowMeans(cbind((sms$M1_3*loading[13]), (sms$M1_8*loading[14]), (sms$M2_7*loading[15]), (sms$M3_4*loading[16])))
+integrated <- rowMeans(cbind((sms$M1_2*loading[17]), (sms$M2_1*loading[18]), (sms$M2_5*loading[19]), (sms$M3_5*loading[20])))
+intrinsic <- rowMeans(cbind((sms$M1_1*loading[21]), (sms$M1_6*loading[22]), (sms$M2_6*loading[23]), (sms$M3_2*loading[24])))
+
+# make df with complete observations (listwise deletion)
+weighted <- cbind(amotivation, external, introjected, identified, integrated, intrinsic)
+weighted <- as.data.frame(weighted[complete.cases(weighted), ])
+```
+
+<br>
+
+----
+
+## 3. Descriptives
+
+Let's get some descriptive statistics.
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+
+input <- weighted %>% 
+  gather("Variable", "value") %>% 
+  group_by(Variable) %>%
+  summarise(Mean=mean(value, na.rm=TRUE), 
+            SD=sd(value, na.rm=TRUE), 
+            min=min(value, na.rm=TRUE), 
+            max=max(value, na.rm=TRUE))
+
+knitr::kable(input, digits=2, "html", caption="Descriptives of SMS (aggregated): weighted sum scores") %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) 
+```
+
+At face value, respondents seem to be pretty high in all types of motivation (compare with the sample of [Emm-Collison and colleagues](https://www.sciencedirect.com/science/article/pii/S1469029219303851)).
+
+<br>
+
+----
+
+## 4. LPA  
+
+Now we use the aggregated SMS data to identify motivational profiles, in a sequence of models with an increasing number of profiles (from 2 to ...), to ascertain whether more complex (i.e. more profiles) or parsimonious (i.e. fewer profiles) models provided the best description (fit) of the data. We use the BIC and ICL (which penalizes on entropy) to see which model provides the best statistical fit to the data. But first, we transform the SMS-data into standardized z-scores, meaning that profile means reflect standard deviation (SD) units above or below the sample mean (which is set to 0).
+
+```{r}
+clus <- weighted %>%
+  na.omit() %>% # listwise deletion
+  mutate_all(list(scale)) # standardize indicators
+```
+
+### {.tabset .tabset-fade}
+
+#### BIC
+```{r class.source = 'fold-hide'}
+library(mclust)
+BIC <- mclustBIC(clus) 
+plot(BIC)
+```
+
+#### ICL
+```{r class.source = 'fold-hide'}
+library(mclust)
+ICL <- mclustICL(clus) 
+plot(ICL)
+```
+
+### {-}
+
+Use the *summary*-function to show the top-three models based on BIC and ICL. (Oh and btw, [here is a link](https://stats.stackexchange.com/questions/237220/mclust-model-selection) that explains why Mclust defaults to the model with the highest BIC value as the "best" model).
+
+### {.tabset .tabset-fade}
+
+#### BIC
+```{r class.source = 'fold-hide'}
+summary(BIC)
+```
+
+#### ICL
+```{r class.source = 'fold-hide'}
+summary(ICL)
+```
+
+### {-}
+
+<br>
+
+----
+
+## 5. Visualize 
+
+### {.tabset .tabset-fade}
+
+VEV, 9 provided the best-fitting model (followed by 6 and 5). Let's estimate a sequence of models, with an increasing number of profiles, and plot them to assess their theoretical alignment.
+
+#### 2 profiles
+
+```{r class.source = 'fold-hide'}
+m2 <- Mclust(clus, modelNames = "VEV", G = 2, x = BIC)
+summary(m2)
+
+# Extract mean weighted factor scores
+library(reshape2)
+means <- data.frame(m2$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Standardized mean weighted factor scores") +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+#### 3 profiles
+
+```{r class.source = 'fold-hide'}
+m3 <- Mclust(clus, modelNames = "VEV", G = 3, x = BIC)
+summary(m3)
+
+# Extract mean weighted sum scores
+library(reshape2)
+means <- data.frame(m3$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Standardized mean weighted factor scores") +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+#### 4 profiles
+
+```{r class.source = 'fold-hide'}
+m4 <- Mclust(clus, modelNames = "VEV", G = 4, x = BIC)
+summary(m4)
+
+# Extract mean weighted sum scores
+library(reshape2)
+means <- data.frame(m4$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Standardized mean weighted factor scores") +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+#### 5 profiles
+
+```{r class.source = 'fold-hide'}
+m5 <- Mclust(clus, modelNames = "VEV", G = 5, x = BIC)
+summary(m5)
+
+# Extract mean weighted sum scores
+library(reshape2)
+means <- data.frame(m5$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Standardized mean weighted factor scores") +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+#### 6 profiles
+
+```{r class.source = 'fold-hide'}
+m6 <- Mclust(clus, modelNames = "VEV", G = 6, x = BIC)
+summary(m6)
+
+# Extract mean weighted sum scores
+library(reshape2)
+means <- data.frame(m6$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2))
+
+# Plot
+means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_line() +
+  geom_point() +
+  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Standardized mean weighted factor scores") +
+  theme_bw(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+```
+
+### {-}
+
+<br>
+
+----
+
+## 6. Probabilities 
+
+### {.tabset .tabset-fade}
+
+Now let's check the class membership probabilities (posterior probabilities) of our models.
+
+Note to self: also check *entropy*. 
+
+#### 2 profiles
+
+```{r}
+prob <- as.data.frame(m2$z) # turn probabilities into dataframe
+prob$class <- m2$classification # get assigned profiles
+
+c1 <- prob %>% # calculate average posterior probabilities
+  filter(class == 1)
+c2 <- prob %>%
+  filter(class == 2)
+
+pp <- as.data.frame(rbind(colMeans(c1), colMeans(c2)))
+print(pp)
+```
+
+#### 3 profiles
+
+```{r}
+prob <- as.data.frame(m3$z) # turn probabilities into dataframe
+prob$class <- m3$classification # get assigned profiles
+
+c1 <- prob %>% # calculate average posterior probabilities
+  filter(class == 1)
+c2 <- prob %>%
+  filter(class == 2)
+c3 <- prob %>%
+  filter(class == 3)
+
+pp <- as.data.frame(rbind(colMeans(c1), colMeans(c2), colMeans(c3)))
+print(pp)
+```
+
+#### 4 profiles
+
+```{r}
+prob <- as.data.frame(m4$z) # turn probabilities into dataframe
+prob$class <- m4$classification # get assigned profiles
+
+c1 <- prob %>% # calculate average posterior probabilities
+  filter(class == 1)
+c2 <- prob %>%
+  filter(class == 2)
+c3 <- prob %>%
+  filter(class == 3)
+c4 <- prob %>%
+  filter(class == 4)
+
+pp <- as.data.frame(rbind(colMeans(c1), colMeans(c2), colMeans(c3), colMeans(c4)))
+print(pp)
+```
+
+#### 5 profiles
+
+```{r}
+prob <- as.data.frame(m5$z) # turn probabilities into dataframe
+prob$class <- m5$classification # get assigned profiles
+
+c1 <- prob %>% # calculate average posterior probabilities
+  filter(class == 1)
+c2 <- prob %>%
+  filter(class == 2)
+c3 <- prob %>%
+  filter(class == 3)
+c4 <- prob %>%
+  filter(class == 4)
+c5 <- prob %>%
+  filter(class == 5)
+
+pp <- as.data.frame(rbind(colMeans(c1), colMeans(c2), colMeans(c3), colMeans(c4), colMeans(c5)))
+print(pp)
+```
+
+#### 6 profiles
+
+```{r}
+prob <- as.data.frame(m6$z) # turn probabilities into dataframe
+prob$class <- m6$classification # get assigned profiles
+
+c1 <- prob %>% # calculate average posterior probabilities
+  filter(class == 1)
+c2 <- prob %>%
+  filter(class == 2)
+c3 <- prob %>%
+  filter(class == 3)
+c4 <- prob %>%
+  filter(class == 4)
+c5 <- prob %>%
+  filter(class == 5)
+c6 <- prob %>%
+  filter(class == 6)
+
+pp <- as.data.frame(rbind(colMeans(c1), colMeans(c2), colMeans(c3), colMeans(c4), colMeans(c5), colMeans(c6)))
+print(pp)
+```
+
+### {-}
+
+<br>
+
+----
+
+## 7. Validation
+
+Based on statistical fit (BIC, ICL), membership probabilities, and theoretical appropriateness, we chose the 5-class solution. To ensure that interpretation is theoretically meaningful and appropriate, we have re-ordened the profiles to match the motivational continuum proposed from SDT. The six profiles are labelled as:
+
+1. **Strongly amotivated**: primarily amotivation with some (read: average levels of) other forms of motivational regulation.  
+2. **Amotivated**: primarily amotivation, but also high levels of external and introjected regulation.
+3. **Low in motivation**: low levels of all types of behavioral regulation.
+4. **Moderate in motivation**: about average on all forms of behavioral regulation.
+5. **High in motivation**: high in autonomous forms of motivation (i.e. intrinsic, integrated, identified), and also in controlled forms (i.e. external, introjected), but low in amotivation. 
+
+**Note** that we concluded earlier that, on average, our sample scored relatively high on all forms of behavioral regulation. Therefore, a profile such as 'Amotivated' must be understood in the context of these average scores.
+
+----
+
+Let's describe our final model more neatly, and make it interactive. 
+
+```{r}
+# Trimming values exceeding +1 SD
+means <- data.frame(m5$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1, 1, Mean))
+
+# Change labels
+means$Profile <- plyr::revalue(means$Profile, 
+                               c("X1"="Moderate in motivation", "X2" = "Low in motivation", "X3" = "Strongly amotivated", "X4" = "Amotivated", "X5" = "High in motivation"))
+means$Motivation <- plyr::revalue(means$Motivation, c("amotivation" = "Amotivation", "external" = "External", "introjected" = "Introjected", "identified" = "Identified", "integrated" = "Integrated","intrinsic" = "Intrinsic"))
+# Change order
+means$Profile <- factor(means$Profile, # Relevel group factor
+levels = c("Strongly amotivated", "Amotivated", "Low in motivation", "Moderate in motivation", "High in motivation" ))
+
+
+p <- means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_point(size = 2) + 
+  geom_line(size = 1) +
+  scale_x_discrete(limits = c("Amotivation", "External", "Introjected", "Identified", "Integrated", "Intrinsic")) +
+  labs(x = NULL, y = "Standardized mean weighted factor scores") +
+ scale_colour_manual(values=c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442")) + theme_bw(base_family="serif", base_size = 16) + geom_hline(yintercept = 0, linetype="dashed") + theme(axis.text.x = element_text(family="serif", angle = 45, hjust = 1), legend.position = "right", legend.title=element_blank())
+
+#png((paste("images", "/", "lpa.png", sep = ""))) # save the plot as .png
+```
+
+And let's turn this static plot into an *interactive* one. Here, it is not really necessary, but in a LPA with more indiciators it may be tough to read the values of each indicator. We will use the *plotly*-package.
+
+```{r, warning=FALSE, message=FALSE}
+library(plotly)
+
+ggplotly(p, tooltip = c("Motivation", "Mean")) %>%
+  layout(legend = list(orientation = "h", y = 4))
+```
+
+
+**To-do**: explore assumptions about variance, by comparing the VEV,5 model with models with correlated indicators, and equal variances across time (see [this paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5096736/)).
+
+----
+
+# Step 2
+
+In the second step we conducted LPA separately for each set of latent profile indicators (i.e., for each time point), fixing the measurement parameters so that the profiles are the same as in step 1, allowing us to obtain profile variables and classification errors for each time point. 
+
+
+
+
+
+
+
+
