@@ -111,7 +111,7 @@ parameterEstimates(fit, standardized=TRUE) %>%
 ```
 
 
-So, as an example, for a 1-unit increase in the latent variable *amotivation* (i.e. 1-SD increase), the model predicts a 0.322 increase in W1_M1_5.
+So, as an example, for a 1-unit increase in the latent variable *amotivation* (i.e. 1-SD increase), the model predicts a 0.367 increase in W1_M1_5.
 
 <br>
 

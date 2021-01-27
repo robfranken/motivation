@@ -1,0 +1,15 @@
+---
+title: "Sources"
+output:
+  html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+```
+
+Some articles to investigate:
+
+- [Kam et al. 2016](https://journals.sagepub.com/doi/pdf/10.1177/0149206313503010?casa_token=CvumXgxpkFAAAAAA:vEuf1NndY5je9AFfY5AtkXk2SrTH8jGazCmGgpkCpmLYdPYc2qiWV7-nQF_0l_NUYwbYY4tOT3qds8o) (LPTA)
+
+

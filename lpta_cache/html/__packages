@@ -17,3 +17,7 @@ kableExtra
 mclust
 reshape2
 plotly
+semPlot
+equaltestMI
+crosstable
+factoextra

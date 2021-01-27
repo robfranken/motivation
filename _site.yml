@@ -12,4 +12,6 @@ navbar:
       href: lpa3.html
     - text: "LPTA"
       href: lpta.html
+    - text: "Sources"
+      href: site.html
 output_dir: "docs"
