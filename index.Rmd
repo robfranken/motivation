@@ -34,7 +34,7 @@ All scripts can be found on [Github](https://github.com/robfranken/motivation)
 
 # Background
 
-Social network partners may have an influence on your sport behavior through a variety of mechanisms. However, it seems reasonable that the impact of the network varies over individuals with different types of motivation to participate in sports. After all, sport behavior is the result of the interactions of the *individual* within the larger social system within which that individual is embedded (social networks). I have devoted some extra attention to the measurement of motivation, as this remains a stumbling block in previous research (mainly due to the multidimensionality of the construct). A person-centered approach towards measuring motivation has gained a lot of popularity.
+Social network partners may motivate your sport behavior through a variety of mechanisms. I have devoted some extra attention to the measurement of motivation, as this remains a stumbling block in previous research (mainly due to the multidimensionality of the construct). A person-centered approach towards measuring motivation has gained a lot of popularity.
 
 In the following, I will go through and apply Latent Profile Analysis. Latent Profile Analysis (LPA) tries to identify clusters of individuals (i.e., latent profiles) based on responses to a series of continuous variables (i.e., indicators). LPA assumes that there are unobserved latent profiles that generate patterns of responses on indicator items.   
 

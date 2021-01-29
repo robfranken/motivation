@@ -28,6 +28,7 @@ In the following, we will explore motivational profiles in the context of longit
 
 ## Approach
 
+EDIT!
 First, we obtain weighted factor-scores for each SMS-subscale with CFA using MLE, as input for our subsequent LPA. Then, we use a three-step approach (see [this article](https://www.tandfonline.com/doi/pdf/10.1080/10705511.2014.915181); or the paper by [Emm-Collison and colleagues](https://www.sciencedirect.com/science/article/pii/S1469029219303851) who used the same procedure).
 
 
@@ -37,9 +38,9 @@ First, we obtain weighted factor-scores for each SMS-subscale with CFA using MLE
 
 ## 1. Data
 
-Let's get our 'cleaned' SMS-data, for each wave.
+Let's get our 'cleaned' SMS-data, for each wave. We identify "string responding", and cap it to a maximum of 10 and we exclude multivariate outliers with Mahalanobis Distance, using alpha .001 as a cutoff. Next, we make a long file of the SMS data.
 
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE, class.source = 'fold-hide'}
 library(sjlabelled)
 library(dplyr)
 library(tidyverse)
@@ -89,11 +90,7 @@ sms_w3 <- sms_w3 %>%
   filter(string_w3 <= 10,
          md_w3 < cutoff_w3) %>%
   select(-string_w3, -md_w3)
-```
 
-Next, we are going to make a long file of the SMS data.
-
-```{r}
 # first, make a wide format
 sms_wide <- merge(sms_w1, sms_w2, by = "id") # first wave 1 and 2
 sms_wide <- merge(sms_wide, sms_w3, by = "id") # add wave 3
@@ -102,30 +99,7 @@ sms_wide <- merge(sms_wide, sms_w3, by = "id") # add wave 3
 library(reshape2)
 sms_long <- reshape(sms_wide,
                     direction = "long",
-                    varying = c(list(names(sms_wide)[c(2, 26, 50)]),
-                                     list(names(sms_wide)[c(3, 27, 51)]),
-                                     list(names(sms_wide)[c(4, 28, 52)]),
-                                     list(names(sms_wide)[c(5, 29, 53)]),
-                                     list(names(sms_wide)[c(6, 30, 54)]),
-                                     list(names(sms_wide)[c(7, 31, 55)]),
-                                     list(names(sms_wide)[c(8, 32, 56)]),
-                                     list(names(sms_wide)[c(9, 33, 57)]),
-                                     list(names(sms_wide)[c(10, 34, 58)]),
-                                     list(names(sms_wide)[c(11, 35, 59)]),
-                                     list(names(sms_wide)[c(12, 36, 60)]),
-                                     list(names(sms_wide)[c(13, 37, 61)]),
-                                     list(names(sms_wide)[c(14, 38, 62)]),
-                                     list(names(sms_wide)[c(15, 39, 63)]),
-                                     list(names(sms_wide)[c(16, 40, 64)]),
-                                     list(names(sms_wide)[c(17, 41, 65)]),
-                                     list(names(sms_wide)[c(18, 42, 66)]),
-                                     list(names(sms_wide)[c(19, 43, 67)]),
-                                     list(names(sms_wide)[c(20, 44, 68)]),
-                                     list(names(sms_wide)[c(21, 45, 69)]),
-                                     list(names(sms_wide)[c(22, 46, 70)]),
-                                     list(names(sms_wide)[c(23, 47, 71)]),
-                                     list(names(sms_wide)[c(24, 48, 72)]),
-                                     list(names(sms_wide)[c(25, 49, 73)])),
+                    varying = c(list(names(sms_wide)[c(2, 26, 50)]), list(names(sms_wide)[c(3, 27, 51)]), list(names(sms_wide)[c(4, 28, 52)]), list(names(sms_wide)[c(5, 29, 53)]), list(names(sms_wide)[c(6, 30, 54)]), list(names(sms_wide)[c(7, 31, 55)]), list(names(sms_wide)[c(8, 32, 56)]), list(names(sms_wide)[c(9, 33, 57)]), list(names(sms_wide)[c(10, 34, 58)]),list(names(sms_wide)[c(11, 35, 59)]), list(names(sms_wide)[c(12, 36, 60)]), list(names(sms_wide)[c(13, 37, 61)]), list(names(sms_wide)[c(14, 38, 62)]),list(names(sms_wide)[c(15, 39, 63)]), list(names(sms_wide)[c(16, 40, 64)]), list(names(sms_wide)[c(17, 41, 65)]), list(names(sms_wide)[c(18, 42, 66)]), list(names(sms_wide)[c(19, 43, 67)]), list(names(sms_wide)[c(20, 44, 68)]),  list(names(sms_wide)[c(21, 45, 69)]),  list(names(sms_wide)[c(22, 46, 70)]), list(names(sms_wide)[c(23, 47, 71)]), list(names(sms_wide)[c(24, 48, 72)]), list(names(sms_wide)[c(25, 49, 73)])),
                     v.names = c("M1_1", "M1_2", "M1_3","M1_4", "M1_5", "M1_6", "M1_7", "M1_8", "M2_1", "M2_2", "M2_3","M2_4", "M2_5", "M2_6", "M2_7", "M2_8", "M3_1", "M3_2", "M3_3","M3_4", "M3_5", "M3_6", "M3_7", "M3_8"),
                     idvar = "id",
                     timevar = "Timepoint",
@@ -144,7 +118,7 @@ sms_long_nm <- sms_long %>%
 
 ## 2. CFA
 
-First, confirmatory factor analysis using maximum likelihood estimation was conducted to obtain weighted factor scores for each SMS subscale. We first conduct CFA on the stacked data (hence assuming observations to be independent of each other). We will assess model fit using multiple indices. Afterwards, we will assess longitudinal invariance of the measurement model via a series of increasingly constraining models, indicating invariance by a change of CFI of ≤0.01.
+First, confirmatory factor analysis using maximum likelihood estimation was conducted to obtain weighted factor scores for each SMS subscale. We first conduct CFA on the stacked data (hence assuming observations to be independent of each other). We will assess model fit using multiple indices. Afterwards, we will assess longitudinal invariance of the measurement model via a series of increasingly constrained models, indicating invariance by a change of CFI of ≤0.01.
 
 ### Lavaan
 
@@ -171,13 +145,12 @@ overall.fit <- cfa(model = motivation_model, data = sms_long_nm,
            meanstructure = TRUE,  # gives us the means
            std.lv = TRUE) 
 
-summary(overall.fit, standardized = TRUE, rsquare = TRUE, fit.measure = TRUE)
+#summary(overall.fit, standardized = TRUE, rsquare = TRUE, fit.measure = TRUE) #for inspection
 
 # make table of fit indices
-table_fit <- matrix(NA, nrow = 11, ncol = 6)
+table_fit <- matrix(NA, nrow = 8, ncol = 6)
 colnames(table_fit) <- c("Model", "X2", "df", "CFI", "RMSEA", "SRMR")
 table_fit[1, ] <- c("Overall Model", round(fitmeasures(overall.fit, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
-
 ```
 
 <br>
@@ -194,69 +167,41 @@ semPaths(overall.fit, whatLabels = "std", layout = "tree")
 Since we are dealing with panel data, and we want to explore movement over time in motivations, we should investigate to what extent our CFA solution is invariant over time (because we don't want to compare apples with oranges).
 We will compare the SMS data of W1-W3 and compare them in CFA for configural, metric, scalar, and strict residual invariance (see e.g., [Cheung & Rensvold 2002](https://www.tandfonline.com/doi/pdf/10.1207/S15328007SEM0902_5?casa_token=scyVPZRkncQAAAAA:PDDawXxC0BMvLu-kjcvtaFcHseZnO3rkwX4nJGtd8OrK-nuTq4B1Mk571ajpjaq3JQhasVHnyXtofdg)).
 
-We will use a new package for this. Apparently, this package only allows for multi-group equivalence testing for two groups (in Lavaan multiple groups can be compared); therefore, I will run the same procedure for each pair (i.e., W1 vs. W2, W2 vs. W3, and W1 vs. W3).
-
-First, we will subset dataframes that only include two groups (i.e. waves) for comparison, for subsequent equivalence tests. 
-```{r}
-W1_2 <- ifelse(sms_long_nm$Timepoint == 1, 0, ifelse(sms_long_nm$Timepoint == 2, 1, NA))
-sms12 <- sms_long_nm[!is.na(W1_2), ] # compare w1 and w2
-
-W2_3 <- ifelse(sms_long_nm$Timepoint == 2, 0, ifelse(sms_long_nm$Timepoint == 3, 1, NA))
-sms23 <- sms_long_nm[!is.na(W2_3), ] # compare w2 and w3
-
-W1_3 <- ifelse(sms_long_nm$Timepoint == 1, 0, ifelse(sms_long_nm$Timepoint == 3, 1, NA))
-sms13 <- sms_long_nm[!is.na(W1_3), ] # compare w1 and w3
-```
-
 <br>
 
-#### Comparing Wave 1 and Wave 2 
+#### Configural invariance
+
+Starting with a test for configural invariance - is the 'picture'/structure of the model the same for all waves. We make a multi-group model by using the group-argument.
 
 ```{r}
-library(equaltestMI) #install package
+con.fit <- cfa(model = motivation_model, data = sms_long_nm, meanstructure = TRUE,
+               group = "Timepoint")
+table_fit[2, ] <- c("Configural Model", round(fitmeasures(con.fit, c("chisq", "df", "cfi", "rmsea", "srmr")),3)) #add results to the table
 
-# estimate the multi-group model
-MG.model <- eqMI.main(model = motivation_model, 
-                      data = sms12, 
-                      group = "Timepoint", #comparing wave 1 and wave 2
-                      meanstructure = TRUE, #include the means
-                      output = "both", #means, covariance, both
-                      equivalence.test = FALSE, 
-                      adjRMSEA = TRUE,
-                      projection = TRUE, #test equality of latent factor means (even when equality of intercepts does not hold)
-                      bootstrap = FALSE,
-                      quiet = TRUE)
-```
-
-Now we will summarize the results of the multi-group model, and add them to our previously made kable-table.
-
-```{r}
-table_fit[2, ] <- c("W1 Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.configural.g1, c("chisq", "df", "cfi", "rmsea", "srmr")),3)) # group 1: Wave 1
-table_fit[3, ] <- c("W2 Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.configural.g2, c("chisq", "df", "cfi", "rmsea", "srmr")),3)) # group 2: Wave 2
-
-```
-
-And to test for configural invariance - is the 'picture'/structure of the model the same for both groups (i.e. waves), we stack the groups together.
-
-```{r}
 library(knitr)
 library(kableExtra)
 library(dplyr)
 library(tidyr)
 
-table_fit[4, ] <- c("Configural Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.combine.groups, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
-
-input <- table_fit[1:4, ] 
+input <- table_fit[1:2, ] 
 knitr::kable(input, digits=2, "html", caption="") %>% 
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-This is the model against which we will test the next model. So, we will conduct a sequential testing analysis. Next, we will assess metric invariance, by constraining the factor loadings to be equal across the waves. In the configural model, factor loadings were "freely" estimated in both waves; now, only 1 loading gets estimated for both groups. Let's see what happens to the model. 
+This is the model against which we will test the next model. So, we will conduct a sequential testing analysis.  
+
+<br>
+
+#### Metric invariance
+Next, we will assess metric invariance, by constraining the factor loadings to be equal across the waves. In the configural model, factor loadings were "freely" estimated in both waves; now, only 1 loading gets estimated for both groups. Let's see what happens to the model.
+
 
 ```{r}
-table_fit[5, ] <- c("Metric Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.metric, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
+met.fit <- cfa(model = motivation_model, data = sms_long_nm, meanstructure = TRUE,
+               group = "Timepoint", group.equal = c("loadings"))
+table_fit[3, ] <- c("Metric Model", round(fitmeasures(met.fit, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
 
-input <- table_fit[1:5, ] 
+input <- table_fit[1:3, ] 
 knitr::kable(input, digits=2, "html", caption="") %>% 
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
@@ -265,38 +210,49 @@ The metric model seems to be invariant in comparison to the configural model: th
 
 <br>
 
+#### Scalar invariance
 We have constrained our model to contain the same structure, the same loadings; now let's test for scalar invariance, to see if the intercepts are the same across waves. 
 
 ```{r}
-table_fit[6, ] <- c("Scalar Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.scalar, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
+sca.fit <- cfa(model = motivation_model, data = sms_long_nm, meanstructure = TRUE,
+               group = "Timepoint", group.equal = c("loadings", "intercepts"))
+table_fit[4, ] <- c("Scalar Model", round(fitmeasures(sca.fit, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
 
-input <- table_fit[1:6, ] 
+input <- table_fit[1:4, ] 
 knitr::kable(input, digits=2, "html", caption="") %>% 
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
-
 
 The intercepts are equal on the scale between the waves. 
 
 <br>
 
+#### Strict (residual) invariance
 Last, we constrain the model to the strict model, to check for strict residual invariance. It will inform whether the variance around items is the same across time.
 
 ```{r}
-table_fit[7, ] <- c("Strict Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.strict.residuals, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
+str.fit <- cfa(model = motivation_model, data = sms_long_nm, meanstructure = TRUE,
+               group = "Timepoint", group.equal = c("loadings", "intercepts", "residuals"))
+table_fit[5, ] <- c("Strict Model", round(fitmeasures(str.fit, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
 
-input <- table_fit[1:7, ] 
+
+input <- table_fit[1:5, ] 
 knitr::kable(input, digits=2, "html", caption="") %>% 
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-From here it goes downwards... CFI dropped more than 0.01, suggesting that the residuals vary between the waves. We could estimate partial invariance, to investigate where the problem is and subsequently update the model to fix it. We are going to do so by freeing the variances of item residuals, one at a time, to figure out which equality constaint(s) is/are causing the problem. We will use the following loop for this. 
+From here it goes downwards... CFI dropped more than 0.01, suggesting that the residuals vary between the waves. 
+
+<br>
+
+#### Partial invariance
+We could estimate partial invariance, to investigate where the problem is and subsequently update the model to fix it. We are going to do so by freeing the variances of item residuals, one at a time, to figure out which equality constaint(s) is/are causing the problem. We will use the following loop for this. 
 
 ```{r}
 # write out partial codes
-partial_syntax <- paste(colnames(sms12)[3:26], #all sms columns
+partial_syntax <- paste(colnames(sms_long_nm)[3:26], #all sms columns
                         "~~", #residuals
-                        colnames(sms12)[3:26]) #all columns again
+                        colnames(sms_long_nm)[3:26]) #all columns again
 
 CFI_list <- 1:length(partial_syntax)
 names(CFI_list) <- partial_syntax 
@@ -304,7 +260,7 @@ names(CFI_list) <- partial_syntax
 for (i in 1:length(partial_syntax)){
   
   temp <- cfa(model = motivation_model,
-              data = sms12,
+              data = sms_long_nm,
               meanstructure = TRUE,
               group = "Timepoint",
               group.equal = c("loadings", "intercepts", "residuals"),
@@ -316,319 +272,47 @@ for (i in 1:length(partial_syntax)){
 
 # now figure out which parameters to "free"
 options(scipen = 999)
-sort(CFI_list - fitmeasures(MG.model$convention.sem$LavaanOut$fit.strict.residuals, "cfi", decreasing = T))
+sort(CFI_list - fitmeasures(str.fit, "cfi"), decreasing = TRUE)
 ```
 
-Let's free up those parameters. Starting with the one that increases CFI to the greatest extent. We will re-run the whole model for this
+Let's free up those parameters, starting with the one that increases CFI to the greatest extent. 
 
 ```{r}
-MG.model_2 <- eqMI.main(model = motivation_model, 
-                      data = sms12, 
-                      group = "Timepoint", #comparing wave 1 and wave 2
-                      meanstructure = TRUE,
-                      group.partial = c("M1_6~~M1_6"), #free this parameter
-                      output = "both", #mean, covariance, both
-                      equivalence.test = FALSE, 
-                      adjRMSEA = TRUE,
-                      projection = TRUE, 
-                      bootstrap = FALSE,
-                      quiet = TRUE)
-
-# check summary to see if the equality constraint is gone.
-# summary(MG.model_2$convention.sem$LavaanOut$fit.strict.residuals,
-#        standardized = TRUE, rsquare = TRUE, fit.measure = TRUE)
-
-
-table_fit[8, ] <- c("Strict Model M1_6", round(fitmeasures(MG.model_2$convention.sem$LavaanOut$fit.strict.residuals, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
-
-input <- table_fit[1:8, ] 
-knitr::kable(input, digits=2, "html", caption="") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
-CFI improved, but the difference with the baseline scalar model is still greater than .01. Thus, we still need to free (at least) one more, to achieve "partial" invariance. 
-
-```{r}
-MG.model_3 <- eqMI.main(model = motivation_model, 
-                        data = sms12, 
-                        group = "Timepoint", #comparing wave 1 and wave 2
-                        meanstructure = TRUE,
-                        group.partial = c("M1_6~~M1_6", "M1_7~~M1_7"), #free these parameters
-                        output = "both", #mean, covariance, both
-                        equivalence.test = FALSE, 
-                        adjRMSEA = TRUE,
-                        projection = TRUE, 
-                        bootstrap = FALSE,
-                        quiet = TRUE)
-
-table_fit[9, ] <- c("Strict Model M1_6 + M1_7", round(fitmeasures(MG.model_3$convention.sem$LavaanOut$fit.strict.residuals, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
-
-input <- table_fit[1:9, ] 
-knitr::kable(input, digits=2, "html", caption="") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
-
-#### Comparing Wave 2 and Wave 3
-
-```{r}
-library(equaltestMI) #install package
-
-# estimate the multi-group model
-MG.model <- eqMI.main(model = motivation_model, 
-                      data = sms23, 
-                      group = "Timepoint", #comparing wave 2 and wave 3
-                      meanstructure = TRUE, #include the means
-                      output = "both", #means, covariance, both
-                      equivalence.test = FALSE, 
-                      adjRMSEA = TRUE,
-                      projection = TRUE, #test equality of latent factor means (even when equality of intercepts does not hold)
-                      bootstrap = FALSE,
-                      quiet = TRUE)
-```
-
-Now we will summarize the results of the multi-group model, and add them to our previously made kable-table.
-
-```{r}
-table_fit[2, ] <- c("W2 Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.configural.g1, c("chisq", "df", "cfi", "rmsea", "srmr")),3)) # group 1: Wave 2
-table_fit[3, ] <- c("W3 Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.configural.g2, c("chisq", "df", "cfi", "rmsea", "srmr")),3)) # group 2: Wave 3
-
-```
-
-And to test for configural invariance - is the 'picture'/structure of the model the same for both groups (i.e. waves), we stack the groups together.
-
-```{r}
-library(knitr)
-library(kableExtra)
-library(dplyr)
-library(tidyr)
-
-table_fit[4, ] <- c("Configural Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.combine.groups, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
-
-input <- table_fit[1:4, ] 
-knitr::kable(input, digits=2, "html", caption="") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
-This is the model against which we will test the next model. So, we will conduct a sequential testing analysis. Next, we will assess metric invariance, by constraining the factor loadings to be equal across the waves. In the configural model, factor loadings were "freely" estimated in both waves; now, only 1 loading gets estimated for both groups. Let's see what happens to the model. 
-
-```{r}
-table_fit[5, ] <- c("Metric Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.metric, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
-
-input <- table_fit[1:5, ] 
-knitr::kable(input, digits=2, "html", caption="") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
-The metric model seems to be invariant in comparison to the configural model: the CFI difference is smaller than .01, hence assuming invariance (same holds for RMSEA/SRMR). Conclusion: the metric model holds: the loadings are equal (or close enough). 
-
-<br>
-
-We have constrained our model to contain the same structure, the same loadings; now let's test for scalar invariance, to see if the intercepts are the same across waves. 
-
-```{r}
-table_fit[6, ] <- c("Scalar Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.scalar, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
+par.fit <- cfa(model = motivation_model, data = sms_long_nm, meanstructure = TRUE,
+               group = "Timepoint", group.equal = c("loadings", "intercepts", "residuals"),
+               group.partial = "M1_5~~M1_5")
+table_fit[6, ] <- c("Strict Model + M1_5", round(fitmeasures(par.fit, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
 
 input <- table_fit[1:6, ] 
 knitr::kable(input, digits=2, "html", caption="") %>% 
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-The intercepts are equal on the scale between the waves. 
-
-<br>
-
-Last, we constrain the model to the strict model, to check for strict residual invariance. It will inform whether the variance around items is the same across time.
+CFI improved, but the difference in CFI with the baseline scalar model is still greater than .01. Thus, we still need to free (at least) one more, to achieve "partial" invariance. 
 
 ```{r}
-table_fit[7, ] <- c("Strict Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.strict.residuals, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
+par.fit2 <- cfa(model = motivation_model, data = sms_long_nm, meanstructure = TRUE,
+                group = "Timepoint", group.partial = c("M1_5~~M1_5", "M1_7~~M1_7"),
+                group.equal = c("loadings", "intercepts", "residuals"))
+table_fit[7, ] <- c("Strict Model + M1_5 + M1_7", round(fitmeasures(par.fit2, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
 
 input <- table_fit[1:7, ] 
 knitr::kable(input, digits=2, "html", caption="") %>% 
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-#### Comparing Wave 1 and Wave 3
+Ditto...
 
 ```{r}
-library(equaltestMI) #install package
-
-# estimate the multi-group model
-MG.model <- eqMI.main(model = motivation_model, 
-                      data = sms13, 
-                      group = "Timepoint", #comparing wave 1 and wave 3
-                      meanstructure = TRUE, #include the means
-                      output = "both", #means, covariance, both
-                      equivalence.test = FALSE, 
-                      adjRMSEA = TRUE,
-                      projection = TRUE, #test equality of latent factor means (even when equality of intercepts does not hold)
-                      bootstrap = FALSE,
-                      quiet = TRUE)
-```
-
-Now we will summarize the results of the multi-group model, and add them to our previously made kable-table.
-
-```{r}
-table_fit[2, ] <- c("W1 Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.configural.g1, c("chisq", "df", "cfi", "rmsea", "srmr")),3)) # group 1: Wave 1
-table_fit[3, ] <- c("W3 Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.configural.g2, c("chisq", "df", "cfi", "rmsea", "srmr")),3)) # group 2: Wave 3
-
-```
-
-And to test for configural invariance - is the 'picture'/structure of the model the same for both groups (i.e. waves), we stack the groups together.
-
-```{r}
-library(knitr)
-library(kableExtra)
-library(dplyr)
-library(tidyr)
-
-table_fit[4, ] <- c("Configural Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.combine.groups, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
-
-input <- table_fit[1:4, ] 
-knitr::kable(input, digits=2, "html", caption="") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
-This is the model against which we will test the next model. So, we will conduct a sequential testing analysis. Next, we will assess metric invariance, by constraining the factor loadings to be equal across the waves. In the configural model, factor loadings were "freely" estimated in both waves; now, only 1 loading gets estimated for both groups. Let's see what happens to the model. 
-
-```{r}
-table_fit[5, ] <- c("Metric Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.metric, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
-
-input <- table_fit[1:5, ] 
-knitr::kable(input, digits=2, "html", caption="") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
-The metric model seems to be invariant in comparison to the configural model: the CFI difference is smaller than .01, hence assuming invariance (same holds for RMSEA/SRMR). Conclusion: the metric model holds: the loadings are equal (or close enough). 
-
-<br>
-
-We have constrained our model to contain the same structure, the same loadings; now let's test for scalar invariance, to see if the intercepts are the same across waves. 
-
-```{r}
-table_fit[6, ] <- c("Scalar Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.scalar, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
-
-input <- table_fit[1:6, ] 
-knitr::kable(input, digits=2, "html", caption="") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
-
-The intercepts are equal on the scale between the waves. 
-
-<br>
-
-Last, we constrain the model to the strict model, to check for strict residual invariance. It will inform whether the variance around items is the same across time.
-
-```{r}
-table_fit[7, ] <- c("Strict Model", round(fitmeasures(MG.model$convention.sem$LavaanOut$fit.strict.residuals, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
-
-input <- table_fit[1:7, ] 
-knitr::kable(input, digits=2, "html", caption="") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
-From here it goes downwards... CFI dropped more than 0.01, suggesting that the residuals vary between the waves. We could estimate partial invariance, to investigate where the problem is and subsequently update the model to fix it. We are going to do so by freeing the variances of item residuals, one at a time, to figure out which equality constaint(s) is/are causing the problem. We will use the following loop for this. 
-
-```{r}
-# write out partial codes
-partial_syntax <- paste(colnames(sms12)[3:26], #all sms columns
-                        "~~", #residuals
-                        colnames(sms12)[3:26]) #all columns again
-
-CFI_list <- 1:length(partial_syntax)
-names(CFI_list) <- partial_syntax 
-
-for (i in 1:length(partial_syntax)){
-  
-  temp <- cfa(model = motivation_model,
-              data = sms13,
-              meanstructure = TRUE,
-              group = "Timepoint",
-              group.equal = c("loadings", "intercepts", "residuals"),
-              group.partial = partial_syntax[i])
-  
-  CFI_list[i] <- fitmeasures(temp, "cfi")
-}
-
-
-# now figure out which parameters to "free"
-options(scipen = 999)
-sort(CFI_list - fitmeasures(MG.model$convention.sem$LavaanOut$fit.strict.residuals, "cfi", decreasing = T))
-```
-
-Let's free up those parameters. Starting with the one that increases CFI to the greatest extent. We will re-run the whole model for this
-
-```{r}
-MG.model_2 <- eqMI.main(model = motivation_model, 
-                      data = sms13, 
-                      group = "Timepoint", #comparing wave 1 and wave 3
-                      meanstructure = TRUE,
-                      group.partial = c("M1_7~~M1_7"), #free this parameter
-                      output = "both", #mean, covariance, both
-                      equivalence.test = FALSE, 
-                      adjRMSEA = TRUE,
-                      projection = TRUE, 
-                      bootstrap = FALSE,
-                      quiet = TRUE)
-
-# check summary to see if the equality constraint is gone.
-# summary(MG.model_2$convention.sem$LavaanOut$fit.strict.residuals,
-#        standardized = TRUE, rsquare = TRUE, fit.measure = TRUE)
-
-
-table_fit[8, ] <- c("Strict Model M1_7", round(fitmeasures(MG.model_2$convention.sem$LavaanOut$fit.strict.residuals, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
+par.fit3 <- cfa(model = motivation_model, data = sms_long_nm, meanstructure = TRUE,
+                group = "Timepoint", group.partial = c("M1_5~~M1_5", "M1_7~~M1_7", "M1_6~~M1_6"),
+                group.equal = c("loadings", "intercepts", "residuals"))
+table_fit[8, ] <- c("Strict Model + M1_5 + M1_7 + M1_6", round(fitmeasures(par.fit3, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
 
 input <- table_fit[1:8, ] 
 knitr::kable(input, digits=2, "html", caption="") %>% 
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
-
-CFI improved, but the difference with the baseline scalar model is still greater than .01. Thus, we still need to free (at least) one more, to achieve "partial" invariance. 
-
-```{r}
-MG.model_3 <- eqMI.main(model = motivation_model, 
-                        data = sms13, 
-                        group = "Timepoint", #comparing wave 1 and wave 3
-                        meanstructure = TRUE,
-                        group.partial = c("M1_7~~M1_7", "M3_5~~M3_5"), #free these parameters
-                        output = "both", #mean, covariance, both
-                        equivalence.test = FALSE, 
-                        adjRMSEA = TRUE,
-                        projection = TRUE, 
-                        bootstrap = FALSE,
-                        quiet = TRUE)
-
-table_fit[9, ] <- c("Strict Model M1_7 + M3_5", round(fitmeasures(MG.model_3$convention.sem$LavaanOut$fit.strict.residuals, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
-
-input <- table_fit 
-knitr::kable(input, digits=2, "html", caption="") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
-Ditto
-
-```{r}
-MG.model_4 <- eqMI.main(model = motivation_model, 
-                        data = sms13, 
-                        group = "Timepoint", #comparing wave 1 and wave 3
-                        meanstructure = TRUE,
-                        group.partial = c("M1_7~~M1_7", "M3_5~~M3_5", "M1_5~~M1_5"), #free these parameters
-                        output = "both", #mean, covariance, both
-                        equivalence.test = FALSE, 
-                        adjRMSEA = TRUE,
-                        projection = TRUE, 
-                        bootstrap = FALSE,
-                        quiet = TRUE)
-
-table_fit[9, ] <- c("Strict Model M1_7 + M3_5 + M1_5", round(fitmeasures(MG.model_4$convention.sem$LavaanOut$fit.strict.residuals, c("chisq", "df", "cfi", "rmsea", "srmr")),3))
-
-input <- table_fit 
-knitr::kable(input, digits=2, "html", caption="") %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
-
 
 <br>
 
@@ -639,19 +323,14 @@ We can conclude that the SMS is mostly invariant - the structure, factor loading
 <br>
 
 ### Weighted factor-scores
-Now we use the invariant measurement model to generate (weighted) factor scores as input variables for the subsequent LPA. Weighted factor scores are computed by multiplying the factor loading of each item to the scaled score for each item before summing (see [DiStefano et al. (2009)](https://scholarworks.umass.edu/cgi/viewcontent.cgi?article=1226&context=pare)). 
+Now we use the (partially) invariant measurement model to generate (weighted) factor scores as input variables for the subsequent LPA. Weighted factor scores are computed by multiplying the factor loading of each item to the scaled score for each item before summing (see [DiStefano et al. (2009)](https://scholarworks.umass.edu/cgi/viewcontent.cgi?article=1226&context=pare)). 
 
-We will first fit the CFA, fixing the loading of the first variable of each variable to 1. Then we will extract the loadings, and calculate the weighted sum scores. 
-
-**Note**: we now assumed strict measurement invariance (instead of strong), so we may want to free some parameters...
+We extract the factor loadings, and calculate the weighted sum scores.
 
 ```{r}
-fit <- cfa(model = motivation_model, data = sms_long_nm,
-           std.lv = FALSE) # default: not standardized but fixing the first loading on each latent variable to 1.
- 
-loading <- parameterEstimates(fit)$est[1:24] # extract factor loadings
+loading <- parameterEstimates(par.fit3)$est[1:24] # extract factor loadings
 
-# calculate weighted sum scores
+# calculate weighted (sum) factor-scores
 sms_long_nm$amotivation <- rowMeans(cbind((sms_long_nm$M1_5*loading[1]), (sms_long_nm$M2_4*loading[2]), (sms_long_nm$M3_1*loading[3]), (sms_long_nm$M3_6*loading[4])))
 
 sms_long_nm$external <- rowMeans(cbind((sms_long_nm$M1_4*loading[5]), (sms_long_nm$M2_3*loading[6]), (sms_long_nm$M3_3*loading[7]),   (sms_long_nm$M3_8*loading[8])))
@@ -663,6 +342,7 @@ sms_long_nm$identified <- rowMeans(cbind((sms_long_nm$M1_3*loading[13]), (sms_lo
 sms_long_nm$integrated <- rowMeans(cbind((sms_long_nm$M1_2*loading[17]), (sms_long_nm$M2_1*loading[18]), (sms_long_nm$M2_5*loading[19]), (sms_long_nm$M3_5*loading[20])))
 
 sms_long_nm$intrinsic <- rowMeans(cbind((sms_long_nm$M1_1*loading[21]), (sms_long_nm$M1_6*loading[22]), (sms_long_nm$M2_6*loading[23]), (sms_long_nm$M3_2*loading[24])))
+
 ```
 
 <br>
@@ -679,16 +359,16 @@ library(crosstable)
 input <- sms_long_nm %>% #get factor scores and timepoint as grouping variable
   select(27:32, 2)
 
+# integrate wave number and n in header
+n <- as.vector(table(input$Timepoint))
+x <- paste(levels(as.factor(input$Timepoint)), " (N=", n, ")", sep="")
+input$Timepoint <- as.factor(input$Timepoint)
+levels(input$Timepoint) <- x
+
+#flextable
 crosstable(input, by=Timepoint,
            funs=c("Mean" = mean, "Std. dev." = sd, "Min" = min, "Max" = max), funs_arg=list(digits=3)) %>%
   as_flextable(by_header = "Wave")
-```
-
-And let's see how many respondents we have in each wave (**note-to-self**: integrate in previous table...).
-
-```{r}
-knitr::kable(table(sms_long_nm$Timepoint), "html", caption="Number of respondents in each wave", col.names = c("Wave", "N"), align = 'l' ) %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
 At face value, respondents seem to be pretty high in all types of motivation (e.g., compared with the sample of [Emm-Collison and colleagues](https://www.sciencedirect.com/science/article/pii/S1469029219303851) - though these were sum scores).
@@ -702,9 +382,11 @@ At face value, respondents seem to be pretty high in all types of motivation (e.
 
 ## Step 1 
 
-### {.tabset .tabset-fade}
+<br>
 
-As a first step for the LPA, we carefully select a measurement model that accurately captures the construct of motivational profile. We will fit a series of measurement models for each wave to determine which model provides the best fit at each wave (following recommendations of [Nylund et al. (2007)](https://srcd.onlinelibrary.wiley.com/doi/full/10.1111/j.1467-8624.2007.01097.x?casa_token=0wyzjh9Ozk0AAAAA:iasgTYid_gJ5kGH42Jyys61DsBhEDl0zxVrukoJdaeX2e2MGOlm1nfyooEUc1v5SaB3lFYyX1wqVLGNOvQ) and similar to the article by [Martinent & Decret (2015)](https://www.tandfonline.com/doi/pdf/10.1080/10413200.2014.993485?casa_token=CsBgfG9lbtgAAAAA:CMEXxc96xNC-rF6Sowi7X2X0qvXlxI9MuODWtQ1Db92UyZUeLZcWJem1jhhympbi8dBboyrA282A5Ns)).
+### Model-based clustering {.tabset .tabset-fade}
+
+As a first step for the LPA, we carefully select a measurement model that accurately captures the construct of motivational profile, in each wave. 
 
 <br>
 
@@ -717,16 +399,18 @@ sms_w1 <- sms_long_nm[sms_long_nm$Timepoint==1, ] %>%
   select(-Timepoint, -id) %>% # subset W1
   select(25:30) %>% # subset weighted factor scores
   mutate_all(list(scale)) # standardize indicators
+sms_w1$id <- sms_long_nm[sms_long_nm$Timepoint==1, ]$id #add id again
 ```
 
 We then compute the model-based clustering, and ask for a summary.
 ```{r}
 library(mclust)
-mc <- Mclust(sms_w1)
+mc <- Mclust(sms_w1 %>%
+               select(-id))
 summary(mc)                 
 ```
 
-For this wave, Mclust selected a model with 9 (!) profiles; the optimal selected model is EEV, i.e., the profiles are ellipsoidal with equal volume, shape and varying orientation (see [this article](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5096736/)). However, note that VEV, 9 is only slightly behind, and that for all solutions with fewer clusters, the VEV model fitted better.
+For this wave, Mclust selected a model with 7 profiles; the optimal selected model is VEV, i.e., the profiles are ellipsoidal with equal shape (see [this article](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5096736/)).
 
 Now we will access to the results and visualize the model. To visualize, we will use a new package (*factoextra*), to create nicer plots based on ggplot2.
 
@@ -742,21 +426,23 @@ We start by subsetting the data for the respective waves, and standardizing the 
 
 ```{r}
 sms_w2 <- sms_long_nm[sms_long_nm$Timepoint==2, ] %>%
-  select(-Timepoint, -id) %>% # subset W2
+  select(-Timepoint, -id) %>% # subset W1
   select(25:30) %>% # subset weighted factor scores
   mutate_all(list(scale)) # standardize indicators
+sms_w2$id <- sms_long_nm[sms_long_nm$Timepoint==2, ]$id #add id again
 ```
 
 We then compute the model-based clustering, and ask for a summary.
 ```{r}
 library(mclust)
-mc <- Mclust(sms_w2)
+mc <- Mclust(sms_w2 %>%
+               select(-id))
 summary(mc)                 
 ```
 
-For this wave, Mclust selected a model with 7 (!) profiles; the optimal selected model is VEV, i.e., the profiles are ellipsoidal with equal shape (see [this article](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5096736/)). 
+For this wave, Mclust selected a model with 9 (!) profiles; the optimal selected model is EEV, i.e., the profiles are ellipsoidal with equal volume and shape (see [this article](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5096736/)).
 
-Now we will access to the results and visualize the model. To visualize, we will use a new package (*factoextra*), to create nicer plots based on ggplot2.
+Now we will access to the results and visualize the model. To visualize, we will use a new package (*factoextra*), to create nicer plots based on ggplot2. Note, that overall the VEV is best, and that VEV,5 is not far behind.
 
 ```{r}
 library(factoextra)
@@ -773,16 +459,20 @@ sms_w3 <- sms_long_nm[sms_long_nm$Timepoint==3, ] %>%
   select(-Timepoint, -id) %>% # subset W1
   select(25:30) %>% # subset weighted factor scores
   mutate_all(list(scale)) # standardize indicators
+sms_w3$id <- sms_long_nm[sms_long_nm$Timepoint==3, ]$id #add id again
 ```
 
 We then compute the model-based clustering, and ask for a summary.
 ```{r}
 library(mclust)
-mc <- Mclust(sms_w3)
+mc <- Mclust(sms_w3 %>%
+               select(-id))
 summary(mc)                 
 ```
 
-For this wave, Mclust selected a model with 9 (!) profiles; the optimal selected model is VEV, i.e., the profiles are ellipsoidal with equal shape (see [this article](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5096736/)). 
+For this wave, Mclust selected a model with 9 (!) profiles; the optimal selected model is EEV, i.e., the profiles are ellipsoidal with equal volume and shape (see [this article](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5096736/)). 
+
+Now we will access to the results and visualize the model. To visualize, we will use a new package (*factoextra*), to create nicer plots based on ggplot2. Note, that overall the VEV is best, and that VEV,4 is not far behind.
 
 ```{r}
 library(factoextra)
@@ -790,9 +480,14 @@ library(factoextra)
 fviz_mclust(mc, "BIC", palette = "jco")
 ```
 
-### {.tabset .tabset-fade}
+<br>
 
-We will examine a sequence of models, with an increasing number of profiles from 2 to ..., to ascertain whether more complex (i.e. more profiles) or parsimonious (i.e. fewer profiles) models provided the best description of the data. We will use the VEV model (varying volume, equal shape, varying orientation).
+
+### Exploring models {.tabset .tabset-fade}
+
+We will fit a series of measurement models for each wave to determine which model provides the best fit at each wave (following recommendations of [Nylund et al. (2007)](https://srcd.onlinelibrary.wiley.com/doi/full/10.1111/j.1467-8624.2007.01097.x?casa_token=0wyzjh9Ozk0AAAAA:iasgTYid_gJ5kGH42Jyys61DsBhEDl0zxVrukoJdaeX2e2MGOlm1nfyooEUc1v5SaB3lFYyX1wqVLGNOvQ) and similar to the article by [Martinent & Decret (2015)](https://www.tandfonline.com/doi/pdf/10.1080/10413200.2014.993485?casa_token=CsBgfG9lbtgAAAAA:CMEXxc96xNC-rF6Sowi7X2X0qvXlxI9MuODWtQ1Db92UyZUeLZcWJem1jhhympbi8dBboyrA282A5Ns)).
+
+We will examine a sequence of models, with an increasing number of profiles from 2 to 6, to ascertain whether more complex (i.e. more profiles) or parsimonious (i.e. fewer profiles) models provided the best description of the data. We will use the VEV model (varying volume, equal shape, varying orientation), as this model provided the best fit (at least for relatively parsimonious models, which we want).
 
 We will plot the profile means, the clustering and the clustering uncertainty. If the data contain more than two variables (which is the case in our data), the *fviz_mclust()*-function will use PCA to reduce the dimensionality of the data. The first two principal components are used to produce a scatter plot of the data. If we want to plot the data using only two variables (e.g., *external regulation* and *intrinsic motivation*), we can specify that in the function using the argument *choose.vars = c("external", "intrinsic")*. Note that, in the uncertainty plot, larger symbols indicate the more uncertain observations.
 
@@ -807,8 +502,10 @@ We will plot the profile means, the clustering and the clustering uncertainty. I
 ```{r class.source = 'fold-hide'}
 library(mclust)
 
-BIC <- mclustBIC(sms_w1) 
-m2 <- Mclust(sms_w1, modelNames = "VEV", G = 2, x = BIC)
+BIC <- mclustBIC(sms_w1 %>%
+                   select(-id))
+m2 <- Mclust(sms_w1 %>%
+               select(-id), modelNames = "VEV", G = 2, x = BIC)
 
 # Extract mean weighted factor scores
 library(reshape2)
@@ -817,22 +514,26 @@ means <- data.frame(m2$parameters$mean,
   rownames_to_column() %>%
   rename(Motivation = rowname) %>%
   melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
-  mutate(Mean = round(Mean, 2))
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
 
 # Plot showing the standardized means
-means %>%
+p <- means %>%
   ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
-  geom_line() +
-  geom_point() +
-  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
   labs(x = NULL, y = "Standardized mean weighted factor-scores") +
-  scale_colour_manual(values=c("#56B4E9", "#000000", "#E69F00", "#009E73", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
   theme_bw(base_size = 14) +
   geom_hline(yintercept = 0, linetype="dashed") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
 
-library(factoextra)
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
 
+print(p)
+
+library(factoextra)
 # Plot showing the clustering
 fviz_mclust(m2, "classification", geom = "point",
             pointsize = 1.5, palette = "jco")
@@ -846,8 +547,10 @@ fviz_mclust(m2, "uncertainty", palette = "jco")
 ```{r class.source = 'fold-hide'}
 library(mclust)
 
-BIC <- mclustBIC(sms_w1) 
-m3 <- Mclust(sms_w1, modelNames = "VEV", G = 3, x = BIC)
+BIC <- mclustBIC(sms_w1 %>%
+                   select(-id))
+m3 <- Mclust(sms_w1 %>%
+               select(-id), modelNames = "VEV", G = 3, x = BIC)
 
 # Extract mean weighted factor scores
 library(reshape2)
@@ -856,28 +559,35 @@ means <- data.frame(m3$parameters$mean,
   rownames_to_column() %>%
   rename(Motivation = rowname) %>%
   melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
-  mutate(Mean = round(Mean, 2))
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
 
 # Plot showing the standardized means
-means %>%
+p <- means %>%
   ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
-  geom_line() +
-  geom_point() +
-  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
   labs(x = NULL, y = "Standardized mean weighted factor-scores") +
-  scale_colour_manual(values=c("#56B4E9", "#000000", "#E69F00", "#009E73", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
   theme_bw(base_size = 14) +
   geom_hline(yintercept = 0, linetype="dashed") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
 
-library(factoextra)
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
 
+print(p)
+
+library(factoextra)
 # Plot showing the clustering
 fviz_mclust(m3, "classification", geom = "point",
             pointsize = 1.5, palette = "jco")
 
 # Plot showing the clustering uncertainty
 fviz_mclust(m3, "uncertainty", palette = "jco")
+
+# save solution
+#save(m3, file = "3profile_w1.RData")
 ```
 
 ###### 4 profiles
@@ -885,8 +595,10 @@ fviz_mclust(m3, "uncertainty", palette = "jco")
 ```{r class.source = 'fold-hide'}
 library(mclust)
 
-BIC <- mclustBIC(sms_w1) 
-m4 <- Mclust(sms_w1, modelNames = "VEV", G = 4, x = BIC)
+BIC <- mclustBIC(sms_w1 %>%
+                   select(-id)) 
+m4 <- Mclust(sms_w1 %>%
+               select(-id), modelNames = "VEV", G = 4, x = BIC)
 
 # Extract mean weighted factor scores
 library(reshape2)
@@ -895,22 +607,26 @@ means <- data.frame(m4$parameters$mean,
   rownames_to_column() %>%
   rename(Motivation = rowname) %>%
   melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
-  mutate(Mean = round(Mean, 2))
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
 
 # Plot showing the standardized means
-means %>%
+p <- means %>%
   ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
-  geom_line() +
-  geom_point() +
-  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
   labs(x = NULL, y = "Standardized mean weighted factor-scores") +
-  scale_colour_manual(values=c("#56B4E9", "#000000", "#E69F00", "#009E73", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
   theme_bw(base_size = 14) +
   geom_hline(yintercept = 0, linetype="dashed") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
 
-library(factoextra)
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
 
+print(p)
+
+library(factoextra)
 # Plot showing the clustering
 fviz_mclust(m4, "classification", geom = "point",
             pointsize = 1.5, palette = "jco")
@@ -920,11 +636,14 @@ fviz_mclust(m4, "uncertainty", palette = "jco")
 ```
 
 ###### 5 profiles
+
 ```{r class.source = 'fold-hide'}
 library(mclust)
 
-BIC <- mclustBIC(sms_w1) 
-m5 <- Mclust(sms_w1, modelNames = "VEV", G = 5, x = BIC)
+BIC <- mclustBIC(sms_w1 %>%
+                   select(-id))
+m5 <- Mclust(sms_w1 %>%
+               select(-id), modelNames = "VEV", G = 5, x = BIC)
 
 # Extract mean weighted factor scores
 library(reshape2)
@@ -933,28 +652,77 @@ means <- data.frame(m5$parameters$mean,
   rownames_to_column() %>%
   rename(Motivation = rowname) %>%
   melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
-  mutate(Mean = round(Mean, 2))
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
 
 # Plot showing the standardized means
-means %>%
+p <- means %>%
   ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
-  geom_line() +
-  geom_point() +
-  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
   labs(x = NULL, y = "Standardized mean weighted factor-scores") +
-  scale_colour_manual(values=c("#56B4E9", "#000000", "#E69F00", "#009E73", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
   theme_bw(base_size = 14) +
   geom_hline(yintercept = 0, linetype="dashed") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
 
-library(factoextra)
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
 
+print(p)
+
+library(factoextra)
 # Plot showing the clustering
 fviz_mclust(m5, "classification", geom = "point",
             pointsize = 1.5, palette = "jco")
 
 # Plot showing the clustering uncertainty
 fviz_mclust(m5, "uncertainty", palette = "jco")
+```
+
+###### 6 profiles
+
+```{r class.source = 'fold-hide'}
+library(mclust)
+
+BIC <- mclustBIC(sms_w1 %>%
+                   select(-id))
+m6 <- Mclust(sms_w1 %>%
+               select(-id), modelNames = "VEV", G = 6, x = BIC)
+
+# Extract mean weighted factor scores
+library(reshape2)
+means <- data.frame(m6$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
+
+# Plot showing the standardized means
+p <- means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Standardized mean weighted factor-scores") +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
+  theme_bw(base_size = 14) +
+  geom_hline(yintercept = 0, linetype="dashed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
+
+print(p)
+
+library(factoextra)
+# Plot showing the clustering
+fviz_mclust(m6, "classification", geom = "point",
+            pointsize = 1.5, palette = "jco")
+
+# Plot showing the clustering uncertainty
+fviz_mclust(m6, "uncertainty", palette = "jco")
 ```
 
 #### Wave 2
@@ -966,8 +734,10 @@ fviz_mclust(m5, "uncertainty", palette = "jco")
 ```{r class.source = 'fold-hide'}
 library(mclust)
 
-BIC <- mclustBIC(sms_w2) 
-m2 <- Mclust(sms_w2, modelNames = "VEV", G = 2, x = BIC)
+BIC <- mclustBIC(sms_w2 %>%
+                   select(-id)) 
+m2 <- Mclust(sms_w2 %>%
+               select(-id), modelNames = "VEV", G = 2, x = BIC)
 
 # Extract mean weighted factor scores
 library(reshape2)
@@ -976,22 +746,26 @@ means <- data.frame(m2$parameters$mean,
   rownames_to_column() %>%
   rename(Motivation = rowname) %>%
   melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
-  mutate(Mean = round(Mean, 2))
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
 
 # Plot showing the standardized means
-means %>%
+p <- means %>%
   ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
-  geom_line() +
-  geom_point() +
-  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
   labs(x = NULL, y = "Standardized mean weighted factor-scores") +
-  scale_colour_manual(values=c("#56B4E9", "#000000", "#E69F00", "#009E73", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
   theme_bw(base_size = 14) +
   geom_hline(yintercept = 0, linetype="dashed") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
 
-library(factoextra)
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
 
+print(p)
+
+library(factoextra)
 # Plot showing the clustering
 fviz_mclust(m2, "classification", geom = "point",
             pointsize = 1.5, palette = "jco")
@@ -1005,8 +779,10 @@ fviz_mclust(m2, "uncertainty", palette = "jco")
 ```{r class.source = 'fold-hide'}
 library(mclust)
 
-BIC <- mclustBIC(sms_w2) 
-m3 <- Mclust(sms_w2, modelNames = "VEV", G = 3, x = BIC)
+BIC <- mclustBIC(sms_w2 %>%
+                   select(-id)) 
+m3 <- Mclust(sms_w2 %>%
+               select(-id), modelNames = "VEV", G = 3, x = BIC)
 
 # Extract mean weighted factor scores
 library(reshape2)
@@ -1015,28 +791,35 @@ means <- data.frame(m3$parameters$mean,
   rownames_to_column() %>%
   rename(Motivation = rowname) %>%
   melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
-  mutate(Mean = round(Mean, 2))
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
 
 # Plot showing the standardized means
-means %>%
+p <- means %>%
   ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
-  geom_line() +
-  geom_point() +
-  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
   labs(x = NULL, y = "Standardized mean weighted factor-scores") +
-  scale_colour_manual(values=c("#56B4E9", "#000000", "#E69F00", "#009E73", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
   theme_bw(base_size = 14) +
   geom_hline(yintercept = 0, linetype="dashed") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
 
-library(factoextra)
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
 
+print(p)
+
+library(factoextra)
 # Plot showing the clustering
 fviz_mclust(m3, "classification", geom = "point",
             pointsize = 1.5, palette = "jco")
 
 # Plot showing the clustering uncertainty
 fviz_mclust(m3, "uncertainty", palette = "jco")
+
+# save solution
+#save(m3, file = "3profile_w2.RData")
 ```
 
 ###### 4 profiles
@@ -1044,8 +827,10 @@ fviz_mclust(m3, "uncertainty", palette = "jco")
 ```{r class.source = 'fold-hide'}
 library(mclust)
 
-BIC <- mclustBIC(sms_w2) 
-m4 <- Mclust(sms_w2, modelNames = "VEV", G = 4, x = BIC)
+BIC <- mclustBIC(sms_w2 %>%
+                   select(-id))
+m4 <- Mclust(sms_w2 %>%
+               select(-id), modelNames = "VEV", G = 4, x = BIC)
 
 # Extract mean weighted factor scores
 library(reshape2)
@@ -1054,22 +839,26 @@ means <- data.frame(m4$parameters$mean,
   rownames_to_column() %>%
   rename(Motivation = rowname) %>%
   melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
-  mutate(Mean = round(Mean, 2))
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
 
 # Plot showing the standardized means
-means %>%
+p <- means %>%
   ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
-  geom_line() +
-  geom_point() +
-  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
   labs(x = NULL, y = "Standardized mean weighted factor-scores") +
-  scale_colour_manual(values=c("#56B4E9", "#000000", "#E69F00", "#009E73", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
   theme_bw(base_size = 14) +
   geom_hline(yintercept = 0, linetype="dashed") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
 
-library(factoextra)
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
 
+print(p)
+
+library(factoextra)
 # Plot showing the clustering
 fviz_mclust(m4, "classification", geom = "point",
             pointsize = 1.5, palette = "jco")
@@ -1079,11 +868,14 @@ fviz_mclust(m4, "uncertainty", palette = "jco")
 ```
 
 ###### 5 profiles
+
 ```{r class.source = 'fold-hide'}
 library(mclust)
 
-BIC <- mclustBIC(sms_w2) 
-m5 <- Mclust(sms_w2, modelNames = "VEV", G = 5, x = BIC)
+BIC <- mclustBIC(sms_w2 %>%
+                   select(-id))
+m5 <- Mclust(sms_w2 %>%
+               select(-id), modelNames = "VEV", G = 5, x = BIC)
 
 # Extract mean weighted factor scores
 library(reshape2)
@@ -1092,22 +884,26 @@ means <- data.frame(m5$parameters$mean,
   rownames_to_column() %>%
   rename(Motivation = rowname) %>%
   melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
-  mutate(Mean = round(Mean, 2))
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
 
 # Plot showing the standardized means
-means %>%
+p <- means %>%
   ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
-  geom_line() +
-  geom_point() +
-  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
   labs(x = NULL, y = "Standardized mean weighted factor-scores") +
-  scale_colour_manual(values=c("#56B4E9", "#000000", "#E69F00", "#009E73", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
   theme_bw(base_size = 14) +
   geom_hline(yintercept = 0, linetype="dashed") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
 
-library(factoextra)
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
 
+print(p)
+
+library(factoextra)
 # Plot showing the clustering
 fviz_mclust(m5, "classification", geom = "point",
             pointsize = 1.5, palette = "jco")
@@ -1116,9 +912,50 @@ fviz_mclust(m5, "classification", geom = "point",
 fviz_mclust(m5, "uncertainty", palette = "jco")
 ```
 
+###### 6 profiles
 
+```{r class.source = 'fold-hide'}
+library(mclust)
 
+BIC <- mclustBIC(sms_w2 %>%
+                   select(-id))
+m6 <- Mclust(sms_w2 %>%
+               select(-id), modelNames = "VEV", G = 6, x = BIC)
 
+# Extract mean weighted factor scores
+library(reshape2)
+means <- data.frame(m6$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
+
+# Plot showing the standardized means
+p <- means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Standardized mean weighted factor-scores") +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
+  theme_bw(base_size = 14) +
+  geom_hline(yintercept = 0, linetype="dashed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
+
+print(p)
+
+library(factoextra)
+# Plot showing the clustering
+fviz_mclust(m6, "classification", geom = "point",
+            pointsize = 1.5, palette = "jco")
+
+# Plot showing the clustering uncertainty
+fviz_mclust(m6, "uncertainty", palette = "jco")
+```
 
 #### Wave 3
 
@@ -1129,8 +966,10 @@ fviz_mclust(m5, "uncertainty", palette = "jco")
 ```{r class.source = 'fold-hide'}
 library(mclust)
 
-BIC <- mclustBIC(sms_w3) 
-m2 <- Mclust(sms_w3, modelNames = "VEV", G = 2, x = BIC)
+BIC <- mclustBIC(sms_w3 %>%
+                   select(-id)) 
+m2 <- Mclust(sms_w3 %>%
+               select(-id), modelNames = "VEV", G = 2, x = BIC)
 
 # Extract mean weighted factor scores
 library(reshape2)
@@ -1139,22 +978,26 @@ means <- data.frame(m2$parameters$mean,
   rownames_to_column() %>%
   rename(Motivation = rowname) %>%
   melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
-  mutate(Mean = round(Mean, 2))
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
 
 # Plot showing the standardized means
-means %>%
+p <- means %>%
   ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
-  geom_line() +
-  geom_point() +
-  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
   labs(x = NULL, y = "Standardized mean weighted factor-scores") +
-  scale_colour_manual(values=c("#56B4E9", "#000000", "#E69F00", "#009E73", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
   theme_bw(base_size = 14) +
   geom_hline(yintercept = 0, linetype="dashed") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
 
-library(factoextra)
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
 
+print(p)
+
+library(factoextra)
 # Plot showing the clustering
 fviz_mclust(m2, "classification", geom = "point",
             pointsize = 1.5, palette = "jco")
@@ -1168,8 +1011,10 @@ fviz_mclust(m2, "uncertainty", palette = "jco")
 ```{r class.source = 'fold-hide'}
 library(mclust)
 
-BIC <- mclustBIC(sms_w3) 
-m3 <- Mclust(sms_w3, modelNames = "VEV", G = 3, x = BIC)
+BIC <- mclustBIC(sms_w3 %>%
+                   select(-id))
+m3 <- Mclust(sms_w3 %>%
+               select(-id), modelNames = "VEV", G = 3, x = BIC)
 
 # Extract mean weighted factor scores
 library(reshape2)
@@ -1178,28 +1023,35 @@ means <- data.frame(m3$parameters$mean,
   rownames_to_column() %>%
   rename(Motivation = rowname) %>%
   melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
-  mutate(Mean = round(Mean, 2))
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
 
 # Plot showing the standardized means
-means %>%
+p <- means %>%
   ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
-  geom_line() +
-  geom_point() +
-  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
   labs(x = NULL, y = "Standardized mean weighted factor-scores") +
-  scale_colour_manual(values=c("#56B4E9", "#000000", "#E69F00", "#009E73", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
   theme_bw(base_size = 14) +
   geom_hline(yintercept = 0, linetype="dashed") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
 
-library(factoextra)
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
 
+print(p)
+
+library(factoextra)
 # Plot showing the clustering
 fviz_mclust(m3, "classification", geom = "point",
             pointsize = 1.5, palette = "jco")
 
 # Plot showing the clustering uncertainty
 fviz_mclust(m3, "uncertainty", palette = "jco")
+
+# save solution
+#save(m3, file = "3profile_w3.RData")
 ```
 
 ###### 4 profiles
@@ -1207,8 +1059,10 @@ fviz_mclust(m3, "uncertainty", palette = "jco")
 ```{r class.source = 'fold-hide'}
 library(mclust)
 
-BIC <- mclustBIC(sms_w3) 
-m4 <- Mclust(sms_w3, modelNames = "VEV", G = 4, x = BIC)
+BIC <- mclustBIC(sms_w3 %>%
+                   select(-id)) 
+m4 <- Mclust(sms_w3 %>%
+               select(-id), modelNames = "VEV", G = 4, x = BIC)
 
 # Extract mean weighted factor scores
 library(reshape2)
@@ -1217,22 +1071,26 @@ means <- data.frame(m4$parameters$mean,
   rownames_to_column() %>%
   rename(Motivation = rowname) %>%
   melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
-  mutate(Mean = round(Mean, 2))
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
 
 # Plot showing the standardized means
-means %>%
+p <- means %>%
   ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
-  geom_line() +
-  geom_point() +
-  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
   labs(x = NULL, y = "Standardized mean weighted factor-scores") +
-  scale_colour_manual(values=c("#56B4E9", "#000000", "#E69F00", "#009E73", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
   theme_bw(base_size = 14) +
   geom_hline(yintercept = 0, linetype="dashed") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
 
-library(factoextra)
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
 
+print(p)
+
+library(factoextra)
 # Plot showing the clustering
 fviz_mclust(m4, "classification", geom = "point",
             pointsize = 1.5, palette = "jco")
@@ -1242,11 +1100,14 @@ fviz_mclust(m4, "uncertainty", palette = "jco")
 ```
 
 ###### 5 profiles
+
 ```{r class.source = 'fold-hide'}
 library(mclust)
 
-BIC <- mclustBIC(sms_w3) 
-m5 <- Mclust(sms_w3, modelNames = "VEV", G = 5, x = BIC)
+BIC <- mclustBIC(sms_w3 %>%
+                   select(-id))
+m5 <- Mclust(sms_w3 %>%
+               select(-id), modelNames = "VEV", G = 5, x = BIC)
 
 # Extract mean weighted factor scores
 library(reshape2)
@@ -1255,22 +1116,26 @@ means <- data.frame(m5$parameters$mean,
   rownames_to_column() %>%
   rename(Motivation = rowname) %>%
   melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
-  mutate(Mean = round(Mean, 2))
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
 
 # Plot showing the standardized means
-means %>%
+p <- means %>%
   ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
-  geom_line() +
-  geom_point() +
-  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
   labs(x = NULL, y = "Standardized mean weighted factor-scores") +
-  scale_colour_manual(values=c("#56B4E9", "#000000", "#E69F00", "#009E73", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
   theme_bw(base_size = 14) +
   geom_hline(yintercept = 0, linetype="dashed") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
 
-library(factoextra)
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
 
+print(p)
+
+library(factoextra)
 # Plot showing the clustering
 fviz_mclust(m5, "classification", geom = "point",
             pointsize = 1.5, palette = "jco")
@@ -1278,3 +1143,192 @@ fviz_mclust(m5, "classification", geom = "point",
 # Plot showing the clustering uncertainty
 fviz_mclust(m5, "uncertainty", palette = "jco")
 ```
+
+###### 6 profiles
+
+```{r class.source = 'fold-hide'}
+library(mclust)
+
+BIC <- mclustBIC(sms_w3 %>%
+                   select(-id))
+m6 <- Mclust(sms_w3 %>%
+               select(-id), modelNames = "VEV", G = 6, x = BIC)
+
+# Extract mean weighted factor scores
+library(reshape2)
+means <- data.frame(m6$parameters$mean,
+                    stringsAsFactors = F) %>%
+  rownames_to_column() %>%
+  rename(Motivation = rowname) %>%
+  melt(id.vars = "Motivation", variable.name = "Profile", value.name = "Mean") %>%
+  mutate(Mean = round(Mean, 2),
+         Mean = ifelse(Mean > 1.5, 1.5, Mean), #trim values greater exceeding + 1.5
+         Mean = ifelse(Mean < -1, -1, Mean))   #and -1
+
+# Plot showing the standardized means
+p <- means %>%
+  ggplot(aes(Motivation, Mean, group = Profile, color = Profile)) +
+  geom_point(size = 3) + 
+  geom_line(size = 1.5) +  scale_x_discrete(limits = c("amotivation", "external", "introjected", "identified", "integrated", "intrinsic")) +
+  labs(x = NULL, y = "Standardized mean weighted factor-scores") +
+  scale_colour_manual(values=c("#E69F00", "#56B4E9", "#000000", "#009E73", "#F0E442", "#0072B2")) +
+  theme_bw(base_size = 14) +
+  geom_hline(yintercept = 0, linetype="dashed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top")
+
+p <- p + scale_y_continuous(limits=c(-1, 1.5)) # fix scale
+
+print(p)
+
+library(factoextra)
+# Plot showing the clustering
+fviz_mclust(m6, "classification", geom = "point",
+            pointsize = 1.5, palette = "jco")
+
+# Plot showing the clustering uncertainty
+fviz_mclust(m6, "uncertainty", palette = "jco")
+```
+
+
+### Interpretation
+
+Based on statistical criteria (i.c. BIC), complex models were more appropriate (note-to-self: also check SSA_BIC, which adjusts for sample size, or ICL, which penalizes on entropy). However, more complex models did not necessarily mean more meaningful models, guided by SDT. In all waves we found that the 3-class solution provided meaningfull profiles. We have re-ordened the profiles to match the motivational continuum proposed from SDT:
+
+1. **Amotivated**: primarily amotivation, and about average (or somewhat above average) on all other forms of behavioral regulation.
+2. **Low in motivation**: low levels (i.c., ~ -0.5 SD) of all types of behavioral regulation.
+3. **High in motivation**: high in autonomous forms of motivation (i.e. intrinsic, integrated, identified), and also in controlled forms (i.e. external, introjected), but low in amotivation. 
+
+The fourth profile provided an extra (read: interpretable) profile in Wave 1 (i.e., high in introjected), and Wave 3 (i.e., moderate on all, low in amotivation), but not in Wave 2 (where profiles seemed to differ only quantitatively). The addition of this fourth profile makes longitudinal comparison very difficult. Therefore, we chose the 3-class solution.  
+
+<br>
+
+### Membership probabilities {.tabset .tabset-fade}
+
+We also checked the profile sizes and the (average posterior) profile membership probabilities to assess if the 3-profile solution is problematic. (Note that we saved the 3-profile solution in each wave.) The table below supports the three-class solution, with high probabilities that athletes belong to their assigned profiles (albeit slight overlap) - average posterior probabilities in all waves above .89. Moreover, the relative proportion of the classes did not change substantially across time.
+
+#### Wave 1
+
+```{r class.source = 'fold-hide'}
+load(file = "3profile_w1.RData") #load the model
+prob <- as.data.frame(m3$z) #turn probabilities into df
+prob$class <- m3$classification #get assigned profiles
+
+c1 <- prob %>% #calculate average posterior probabilities
+  filter(class == 1)
+c2 <- prob %>%
+  filter(class == 2)
+c3 <- prob %>%
+  filter(class == 3)
+
+df <- as.data.frame(rbind(colMeans(c1), colMeans(c2), colMeans(c3))) #make df for posterior probability table
+colnames(df) <- c("Low", "High", "Amotivation", "class")
+df <- df[, c("class", "Low", "High", "Amotivation" )] #reorder
+
+p <- c("Low", "High", "Amotivation")
+n <- as.character(c(length(m3$n[m3$classification==1]), length(m3$n[m3$classification==2]), length(m3$n[m3$classification==3]))) #get profile sizes
+n2 <- as.character(round(as.numeric(n) / length(m3$classification) * 100))
+
+df$class <- ifelse(df$class == 1, paste(p[1], " (N=", n[1], ", ", n2[1], "%", ")", sep = ""), ifelse(df$class == 2, paste(p[2], " (N=", n[2], ", ", n2[2], "%", ")", sep = ""), paste(p[3], " (N=", n[3], ", ", n2[3], "%", ")", sep = "")))
+
+knitr::kable(df, digits=2, "html", caption="Membership probabilities in Wave 1") %>% #make table
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+#### Wave 2
+
+```{r class.source = 'fold-hide'}
+load(file = "3profile_w2.RData") #load the model
+prob <- as.data.frame(m3$z) #turn probabilities into df
+prob$class <- m3$classification #get assigned profiles
+
+c1 <- prob %>% #calculate average posterior probabilities
+  filter(class == 1)
+c2 <- prob %>%
+  filter(class == 2)
+c3 <- prob %>%
+  filter(class == 3)
+
+df <- as.data.frame(rbind(colMeans(c1), colMeans(c2), colMeans(c3))) #make df for posterior probability table
+colnames(df) <- c("Low", "High", "Amotivation", "class")
+df <- df[, c("class", "Low", "High", "Amotivation" )] #reorder
+
+p <- c("Low", "High", "Amotivation")
+n <- as.character(c(length(m3$n[m3$classification==1]), length(m3$n[m3$classification==2]), length(m3$n[m3$classification==3]))) #get profile sizes
+n2 <- as.character(round(as.numeric(n) / length(m3$classification) * 100))
+
+df$class <- ifelse(df$class == 1, paste(p[1], " (N=", n[1], ", ", n2[1], "%", ")", sep = ""), ifelse(df$class == 2, paste(p[2], " (N=", n[2], ", ", n2[2], "%", ")", sep = ""), paste(p[3], " (N=", n[3], ", ", n2[3], "%", ")", sep = "")))
+
+knitr::kable(df, digits=2, "html", caption="Membership probabilities in Wave 2") %>% #make table
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+#### Wave 3
+
+```{r class.source = 'fold-hide'}
+load(file = "3profile_w3.RData") #load the model
+prob <- as.data.frame(m3$z) #turn probabilities into df
+prob$class <- m3$classification #get assigned profiles
+
+c1 <- prob %>% #calculate average posterior probabilities
+  filter(class == 1)
+c2 <- prob %>%
+  filter(class == 2)
+c3 <- prob %>%
+  filter(class == 3)
+
+df <- as.data.frame(rbind(colMeans(c1), colMeans(c2), colMeans(c3))) #make df for posterior probability table
+colnames(df) <- c("Low", "Amotivation", "High", "class")
+df <- df[, c("class", "Low", "Amotivation", "High" )] #reorder
+
+p <- c("Low", "Amotivation", "High")
+n <- as.character(c(length(m3$n[m3$classification==1]), length(m3$n[m3$classification==2]), length(m3$n[m3$classification==3]))) #get profile sizes
+n2 <- as.character(round(as.numeric(n) / length(m3$classification) * 100))
+
+df$class <- ifelse(df$class == 1, paste(p[1], " (N=", n[1], ", ", n2[1], "%", ")", sep = ""), ifelse(df$class == 2, paste(p[2], " (N=", n[2], ", ", n2[2], "%", ")", sep = ""), paste(p[3], " (N=", n[3], ", ", n2[3], "%", ")", sep = "")))
+
+knitr::kable(df, digits=2, "html", caption="Membership probabilities in Wave 3") %>% #make table
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+<br>
+
+## Step 2 
+
+### Old 3-step approach
+
+As a second step, we assign to each subject their profile membership. Through "the old 3-step approach" each subject's class membership is *determined* by their most likely class membership. However, this approach may be problematic, as it does not account for classification error, and thus may give biased estimates and standard errors with the relationships with other variables, and the transition probabilities (see [new approach](#new)).
+
+#### Assign profiles
+
+Here I load the saved 3-profile solution for each wave, add the id from the data from the respective wave, and merge... something goes wrong!
+
+
+```{r}
+load(file = "3profile_w1.RData") #load the model
+class <- ifelse(m3$classification==1, 2, ifelse(m3$classification==2, 3, 1)) #order based on SDT: amotivation (1), low (2), high (3)
+class_w1 <- cbind(class, sms_w1$id) #add id
+
+load(file = "3profile_w2.RData") #load the model
+class <- ifelse(m3$classification==1, 2, ifelse(m3$classification==2, 3, 1)) #order based on SDT: amotivation (1), low (2), high (3)
+class_w2 <- cbind(class, sms_w2[complete.cases(sms_w2), ]$id) #add id
+
+load(file = "3profile_w3.RData") #load the model
+class <- ifelse(m3$classification==1, 2, ifelse(m3$classification==2, 1, 3)) #order based on SDT: amotivation (1), low (2), high (3)
+class_w3 <- cbind(class, sms_w3[complete.cases(sms_w3), ]$id) #add id
+
+```
+
+### New 3-step approach {#new}
+We created a nominal "most likely class" variable *N*, and a latent class variable *z*, which reflects the probability to belong to N. 
+
+
+
+
+----
+
+# LPTA
+
+Given that the motivational profiles observed on the LPAs appeared fairly consistent across the waves, the next step is to use LPTA to describe respondents' change of motivational profiles across time. This allows us to examine the issue of consistency or change from an intraindividual perspective.
+
+
+

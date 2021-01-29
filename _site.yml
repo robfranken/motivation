@@ -6,12 +6,6 @@ navbar:
       href: index.html
     - text: "Exploring LPA"
       href: lpa1.html
-    - text: "CFA input"
-      href: lpa2.html
-    - text: "Weighted sum scores"
-      href: lpa3.html
     - text: "LPTA"
       href: lpta.html
-    - text: "Sources"
-      href: site.html
 output_dir: "docs"
